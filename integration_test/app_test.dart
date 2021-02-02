@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/common.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:firebase_crud_example/main.dart' as app;
 
@@ -126,5 +127,9 @@ void main() {
 
 }
 
+// TO TEST ON FLUTTER / ANDROID or FLUTTER / IOS , RUN NEXT COMMAND
+//flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
+
+// TO TEST ON FLUTTER WEB (CHROME), INSTALL CHROMEDRIVER AND RUN NEXT 2 COMMANDS ON 2 DIFFERENT TERMINALS
 //chromedriver --port=4444
 //flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
