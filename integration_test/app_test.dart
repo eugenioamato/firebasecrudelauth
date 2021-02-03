@@ -1,30 +1,34 @@
-import 'package:firebase_core/firebase_core.dart';
+
+import 'package:firebase_crud_example/database_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:firebase_crud_example/main.dart' as app;
+import 'package:firebase_crud_example/app.dart' as app;
 
-/*
-TO TEST ON FLUTTER / ANDROID or FLUTTER / IOS , OPEN THE SIMULATOR AND RUN NEXT COMMAND
+/**
+TO TEST ON FLUTTER / ANDROID or FLUTTER / IOS ,
+  OPEN THE SIMULATOR AND RUN NEXT COMMAND
 flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
 */
 
-/*
+/**
 TO TEST ON FLUTTER WEB (CHROME), INSTALL CHROMEDRIVER at:
-
-https://chromedriver.chromium.org/downloads
+    https://chromedriver.chromium.org/downloads
 
 AND RUN NEXT 2 COMMANDS ON 2 DIFFERENT TERMINALS
 chromedriver --port=4444
 flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
-*/
+
+ */
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
   setUpAll(() async{
-    await Firebase.initializeApp();
+    await DatabaseInterface().initializeApp();
   });
 
-  testWidgets('delete gives error when no record is found',
+  testWidgets('Pressing delete button '
+              'gives error when no record is found',
       (WidgetTester tester) async {
         await tester.pumpWidget(app.FirebaseCrudExampleApp(),Duration(seconds: 5));
 
@@ -43,7 +47,8 @@ void main() {
       }
   );
 
-  testWidgets('update gives error when no record is found',
+  testWidgets('Pressing update button '
+              'gives error when no record is found',
           (WidgetTester tester) async {
 
 
@@ -65,7 +70,8 @@ void main() {
   );
 
 
-  testWidgets('read gives error when no record is found',
+  testWidgets('Pressing read button '
+              'gives error when no record is found',
           (WidgetTester tester) async {
 
 
@@ -87,8 +93,9 @@ void main() {
   );
 
   testWidgets('creating will show a success, '
-      'then updating will show a success '
-      'then deleting will show a success ',
+              'then updating will show a success '
+              'then the value will be Alessandro '
+              'then deleting will show a success ',
           (WidgetTester tester) async {
 
 
