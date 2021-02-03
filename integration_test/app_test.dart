@@ -32,7 +32,7 @@ void main() {
   testWidgets('Pressing delete button '
               'gives error when no record is found',
       (WidgetTester tester) async {
-        await tester.pumpWidget(app.FirebaseCrudExampleApp(),Duration(seconds: 2));
+        await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
         expect(
           find.textContaining('Ready!'),
@@ -47,11 +47,11 @@ void main() {
           findsOneWidget,
         );
 
-        await tester.tap(find.bySemanticsLabel('Delete'));
+        await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false));
         await tester.pumpAndSettle(Duration(seconds: 1));
 
         expect(
-          find.textContaining('ERROR'),
+          find.textContaining('ERROR',skipOffstage: false),
           findsOneWidget,
         );
       }
@@ -62,7 +62,7 @@ void main() {
           (WidgetTester tester) async {
 
 
-            await tester.pumpWidget(app.FirebaseCrudExampleApp(),Duration(seconds: 2));
+            await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
             expect(
           find.textContaining('Ready!'),
@@ -76,7 +76,7 @@ void main() {
         await tester.pumpAndSettle(Duration(seconds: 1));
 
         expect(
-          find.textContaining('ERROR'),
+          find.textContaining('ERROR',skipOffstage: false),
           findsOneWidget,
         );
       }
@@ -88,7 +88,7 @@ void main() {
           (WidgetTester tester) async {
 
 
-            await tester.pumpWidget(app.FirebaseCrudExampleApp(),Duration(seconds: 2));
+            await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
             expect(
           find.textContaining('Ready!'),
@@ -101,7 +101,7 @@ void main() {
         await tester.pumpAndSettle(Duration(seconds: 1));
 
         expect(
-          find.textContaining('ERROR'),
+          find.textContaining('ERROR',skipOffstage: false),
           findsOneWidget,
         );
       }
