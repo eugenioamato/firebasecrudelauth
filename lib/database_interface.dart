@@ -13,8 +13,9 @@ class DatabaseInterface {
     await Firebase.initializeApp();
   }
   /// Retrieves the database instance
-  void init() {
+  void init(Function() stopLoading) {
     firestore= FirebaseFirestore.instance;
+    stopLoading();
   }
 
   /// Returns true if the Collection s, Document t is actually present in the DB

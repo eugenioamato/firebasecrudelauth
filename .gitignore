@@ -1,6 +1,7 @@
 # Miscellaneous
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
+web/firebase-config.js
 *.class
 *.log
 *.pyc
