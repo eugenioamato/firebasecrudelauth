@@ -225,6 +225,19 @@ Trying to read, update, or delete the record when it doesn't exist will show an 
 
 # Let's try Flutter-Web
 
+The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
+So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
+This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  
+Inside pubspec.yaml, comment out this line:  
+`  #cloud_firestore: ^0.16.0`
+  
+and run
+`flutter pub get`
+
+REMEMBER that you will have to un-comment the same line every time you want to compile the project to mobile.  
+
+
+
 Select now a different device for your build: Chrome 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
@@ -395,19 +408,45 @@ Run the project with the green PLAY button on Android Studio, or with the termin
 
 # Build and deploy to Web
 
+*Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
+*So, it's always a good practice to build and test the app in Release mode before deploy.*
+
 enter this commands in a terminal under your project root, but only if you already have completed the login-init procedure described above.  
+
 
 >flutter build web
   
 >firebase deploy
 
 The terminal will print 2 links. One for the relative configuration page, and one for the actual address of the published web app.
+Your app is now published, and you can share it the public, redirect a domain to it, and brag about it.  
 
-Enjoy!
+![fullapp](/screenshots/fullapp.png)
+
+
+# How can I force browsers to load the new version?
+
+Yes. The browsers are evil. If you use always the same names for files, even when you upload a new version, the users will still have the OLD version cached. And the browser will ignore totally what you did in the new version.
+But here's a trick you can use to force browsers to dump the old version:
+In index.html the line  
+` <script src="main.dart.js" type="application/javascript"></script>`
+  
+can be edited without breaking the app, adding a fake prop to the call in this way:  
+` <script src="main.dart.js?version=1.0.5" type="application/javascript"></script>`
+
+So, everytime you upload a new version of your web app, you should go up by 1 in this line, and, for coherence, in the third line of your pubspec.yaml  
+`version: 1.0.5`. (not mandatory)  
+  
+This will force the evil browsers to reload the entire app.  
+Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is not using an outdated version.  
+
+
 
 # Thanks and apologies  
 
-Please contact me for any typo/error/mistake that you encounter in this Repository.  
+Please contact me for any typo/error/mistake that you encounter in this Repository. 
+Pull requests are welcome.  
+
 Make contact with me at  
 
 https://www.linkedin.com/in/eugenio-amato-developer  
