@@ -304,6 +304,30 @@ DatabaseInterface().update('users', 'testUser', {
       }
 ```
   
+# Is the project working on ios?  
+
+The short answer : yes. 
+Adapting it for ios, however, demanded some patience: 
+The pod system is very odd. To make everything work I had to:  
+
+Create a IOS project inside Firebase console, in a similar way to what I did for the Android app, save the config file in ios/Runner/Google-Service-Info.plist and exclude the file in .gitignore  
+
+change the CFBundleName in the Info.plist file to match the one inside the plist  
+
+Sign the app with my apple developer license  
+
+`pods install -repo-update`  
+
+Clean the project multiple times
+change the second line of ios/Podfile to 
+>platform :ios, '10.0'  
+
+(Apparently, firebase requires it, but I am not totally sure)
+
+The result is just ok. No Magic here.  
+
+![iosscreen](/screenshots/iosscreen.png)
+
 
 # Let's try Flutter-Web
 
@@ -401,9 +425,10 @@ to import the configuration and initialize the app, with the analytics (only if 
 You will also need in your BODY section the following imports:  
   
 >  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>  
+
 >  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>  
 
-Insert also the analytics library if you enabled it in the previous steps.
+Insert also the analytics library if you enabled it in the previous steps.  
 >  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>  
 
 Remember that, in case your app requires other libraries, you can find them on this website:  
@@ -503,7 +528,7 @@ export var firebaseConfig = {
 
 Sometimes the measurementId may be missing. Don't worry, it is only needed if you requested the Analytics features. However, lacking to insert it will lead to a Warning on your web-page.
 
-# The app finally works!
+# The web app finally works!
 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
@@ -544,6 +569,24 @@ So, everytime you upload a new version of your web app, you should go up by 1 in
   
 This will force the evil browsers to reload the entire app.  
 Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is not using an outdated version.  
+
+
+# Integration test
+  
+Inside the file `integration_test/app_test.dart` you can find a complete set of tests for the app.
+The integration test works with the use of the integration_test: ^1.0.0 plugin  
+To launch the tests for android,ios,or wearOs,  
+first launch the emulator (or connect the physical device)
+then run the command  
+>flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
+  
+The test can also be launched for Web, but you will have to install the chromedriver first, at  
+https://chromedriver.chromium.org/downloads
+  
+then run 2 commands:  
+>chromedriver --port=4444  
+
+>flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
 
 
 
