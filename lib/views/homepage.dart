@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../helper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../services/database_interface.dart' if (dart.library.html)
-  'web_database_interface.dart';
+  '../services/web_database_interface.dart';
 
 class HomePage extends StatefulWidget {
 

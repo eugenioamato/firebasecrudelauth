@@ -6,7 +6,7 @@ import 'package:firebase_crud_example/app.dart' as app;
 
 import 'package:firebase_crud_example/services/database_interface.dart'
 if (dart.library.html)
- 'package:firebase_crud_example/web_database_interface.dart';
+ 'package:firebase_crud_example/services/web_database_interface.dart';
 
 /**
 TO TEST ON ANDROID, WEAROS or IOS ,
