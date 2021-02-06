@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tpnerd.firebase_crud_example">
+    package="com.example.firebase_crud_example">
    <application
         android:name="androidx.multidex.MultiDexApplication"
         android:label="firebase crud"

@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script type="modue" src="./firebase-config.js"></script>
+  <script type="module" src="./firebase-config.js"></script>
 
-  <script type="module">
-  import { firebaseConfig } from './firebase-config.js';
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
-  </script>
+
 
 
   <base href="/">
@@ -40,7 +36,12 @@
   <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>
-
-  <script src="main.dart.js?version=1.0.3" type="application/javascript"></script>
+  <script type="module">
+  import { firebaseConfig } from './firebase-config.js';
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  </script>
+  
+  <script src="main.dart.js?version=1.0.4" type="application/javascript"></script>
 </body>
 </html>

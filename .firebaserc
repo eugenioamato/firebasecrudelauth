@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "fir-crud-example-9f3b6"
+    "default": "fir-crud-example-42f94",
+    "firebasecrud": "fir-crud-example-42f94"
   }
 }

@@ -48,7 +48,7 @@ void main() {
         );
 
         await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(
           find.textContaining('ERROR',skipOffstage: false),
@@ -73,7 +73,7 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.tap(find.bySemanticsLabel('Update',skipOffstage: false));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(
           find.textContaining('ERROR',skipOffstage: false),
@@ -98,7 +98,7 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.tap(find.bySemanticsLabel('Read',skipOffstage: false));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(
           find.textContaining('ERROR',skipOffstage: false),
@@ -126,7 +126,7 @@ void main() {
             //await tester.pumpAndSettle();
 
         await tester.tap(find.bySemanticsLabel('Create'));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(
           find.textContaining('Success'),
@@ -138,7 +138,7 @@ void main() {
 
 
         await tester.tap(find.bySemanticsLabel('Update'));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(find.textContaining('Alessandro'),
             findsOneWidget);
@@ -156,7 +156,7 @@ void main() {
 
 
         await tester.tap(find.bySemanticsLabel('Delete'));
-        await tester.pumpAndSettle(Duration(seconds: 1));
+        await tester.pumpAndSettle();
 
         expect(
           find.textContaining('Success'),
