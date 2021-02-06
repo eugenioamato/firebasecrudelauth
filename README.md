@@ -5,8 +5,7 @@
 
 An example to show crud operations in firebase
 
-## Pre-requisites
-### Switch to Beta channel for Web production
+## Specs
 
 This project was created with the following specs:
 >#android studio 4.1.2   
@@ -16,21 +15,7 @@ This project was created with the following specs:
 >#Tools • Dart 2.12.0 (build 2.12.0-133.2.beta)  
   
   
-To switch to the beta channel, use the next 2 commands in a terminal:  
-`flutter channel beta`  
-`flutter upgrade`  
-  
-Check then your config with :  
-`flutter devices`  
 
-The terminal should then show something like this.  
->2 connected device:  
->  
->Web Server • web-server • web-javascript • Flutter Tools  
->Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
-
-In case you don't see any device, you can try  
-`flutter config --enable-web`
 
 ### Create a new Firebase project
 
@@ -45,13 +30,16 @@ Note that the Project-Id is created here. You can customize the Project-Id choos
 You cannot edit it after the project is created, so try to find a better one (from the ones available) before going on.
 Indeed, Firebase will create a web hosting for your app, that will be accessible at  
 >https://[Project-Id].web.app  
+
 and  
+
 >https://[Project-Id].firebaseapp.com  
 
 You DON'T need to enable Google Analytics for this project.  
 
 Every time you create a project on Firebase, you are actually also creating a project into  
 >https://console.cloud.google.com/  
+
 Subscribe to it, and don't worry about inserting your credit card, the system will not charge you anything until you manually upgrade to a paid services.  
 
 ### Create an Android App  
@@ -200,28 +188,144 @@ The Firebase Firestore is structured on a large JSON tree. Better remember this,
 # The app is finally working!
 
 You can now run the example in your favorite IDE, connected to an Android Emulator or to a physical device.  
-Having on the same screen your database console you can appreciate the data updating in real time.  
-## Create the record
-Try to click the "CREATE" button on the app.
+Having on the same screen your database console you can appreciate the data updating in real time. 
 
-![datainserted](/screenshots/datainserted.png)
-  
+
+![datainserted](/screenshots/datainserted.png)  
 Note that you can manually make all operations manually on the database.  
 This allows you to control all your data without using any software. You only need a browser (and your credentials).  
+## Initialize Firestore
+
+In the web version, the Initialization is made inside the file index.html , and the instance is retrieved trough the fire firebase/firestore.dart, in the plugin firebase 8.0  
+```
+fsi = firestore();
+```
+  
+In the mobile version, using the cloud_firestore plugin, the code is launched in the first initState of the first view:
+``` await initializeApp();
+    fsi= FirebaseFirestore.instance;
+```
+  
+
+## Exist operation  
+The exist operation is activated by the other methods, to avoid double writings or unchecked errors.
+> return (await fsi.collection(s).doc(t).get()).exists;
+  
+
+## Create the record
+Try to click the "CREATE" button on the app. 
+>return await fsi.collection(s).doc(t).set(map);
+
+The _create method checks first if the record exists (stopping with an error in that case), otherwise he sets data from a json map:  
+```
+bool exists = await DatabaseInterface().exists('users', 'testUser');
+if (exists) {
+      _showMessage('ERROR', 'ERROR ON CREATE: THE RECORD ALREADY EXISTS',
+          'Awww...', Colors.red);
+    } else {
+      await DatabaseInterface().set('users', 'testUser', {
+        'firstName': 'Sandro',
+        'lastName': 'Manzoni',
+      });
+
+```
+
+  
 ## Read the record  
 Click on the "READ" button.
-The central caption will show "Data found: ...." with the custom data we issued in our code.
-## Update the record  
-Click on the "UPDATE" button.
-The central caption will show "Record updated successfully: ..." with the new name we issued inside the code.
+>return (await fsi.collection(s).doc(t).get()).data();  
+
+The tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
+If the data doesn't exist, this will result in `null`  
+
+```
+Map<String, dynamic> rec =
+        await DatabaseInterface().read('users', 'testUser');
+
+    if (rec == null) {
+      _showMessage('Error', 'ERROR ON READ, THE RECORD WAS NOT FOUND',
+          'What a pity...', Colors.red);
+    } else {
+      SplayTreeMap<String, dynamic> record = SplayTreeMap.from(rec);
+      _showMessage(
+          'Success!', 'Data found: $record', 'Got it!', Colors.black);
+    }
+```
+
+
 ## Delete the record  
 Click on the "DELETE" button.  
-The central caption will show "Record deleted successfully"
+>fsi.collection(s).doc(t).delete();  
 
-Trying to read, update, or delete the record when it doesn't exist will show an error caption.
+The _delete method checks first if the record exists (returning an error if it doesn't), otherwise it deletes all the document.  
+
+The central caption will show "Record deleted successfully"
+The exist check is necessary, because Firebase doesn't give an error when trying to delete something that doesn't exist.  
+
+```
+bool exists = await DatabaseInterface().exists('users', 'testUser');
+
+    if (!exists) {
+      _showMessage('ERROR', 'ERROR ON DELETE: THE RECORD DOESN`T EXIST',
+          'Can`t I delete the void?', Colors.red);
+    } else {
+      await DatabaseInterface().delete('users', 'testUser');
+      _showMessage('Success!', 'Record deleted Successfully!',
+          'I will miss it!', Colors.black);
+    }
+```
+
+
+## Update the record  
+Click on the "UPDATE" button.  
+>return fsi.collection(s).doc(t).update(data: map);
+  
+The _update method is different from the _create, because it will attempt to write only a record that is already there, throwing an error if it is not found. Catching the error can return a string representing the problem that occurred.
+```
+DatabaseInterface().update('users', 'testUser', {
+      'firstName': 'Alessandro',
+    }).then((_) {
+      _showMessage(
+          'Success!',
+          'Record updated Successfully! The name is changed to Alessandro',
+          'Ok, thank you!',
+          Colors.black);
+      Helper.stopLoading(context);
+    }).catchError((e) {
+      if ((e.toString().startsWith("[cloud_firestore/not-found]"))
+      || (e.toString().startsWith("FirebaseError: No document to update")))
+      {
+        _showMessage('ERROR', 'ERROR ON UPDATE, THE RECORD WAS NOT FOUND',
+            'Cannot update? WTF!', Colors.red);
+      } else
+        {
+        _showMessage('ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
+      }
+```
+  
 
 # Let's try Flutter-Web
 
+### Switch to Beta channel for Web production
+To switch to the beta channel, use the next 2 commands in a terminal:  
+`flutter channel beta`  
+`flutter upgrade`  
+  
+Check then your config with :  
+`flutter devices`  
+
+The terminal should then show something like this.  
+>2 connected device:  
+>  
+>Web Server • web-server • web-javascript • Flutter Tools  
+>Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
+
+In case you don't see any device, you can try  
+`flutter config --enable-web`
+
+  
+## Implementing Flutter-Web
+  
 The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
 So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
 This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  
