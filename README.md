@@ -362,6 +362,8 @@ run in terminal
 
 
 >firebase apps:sdkconfig
+  
+  
 Select the web app and press enter.
 
 Create a file inside your project in the folder web (same folder as index.html) and insert the data in this way:  
@@ -400,7 +402,7 @@ The terminal will print 2 links. One for the relative configuration page, and on
 
 Enjoy!
 
-#Thanks and apologies  
+# Thanks and apologies  
 
 Please contact me for any typo/error/mistake that you encounter in this Repository.  
 Make contact with me at  
