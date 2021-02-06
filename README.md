@@ -1,4 +1,7 @@
-# firebase_crud_example
+# FIREBASE CRUD OPERATIONS on FLUTTER WEB and MOBILE
+
+
+![homepage](/screenshots/homepage.png)
 
 An example to show crud operations in firebase
 
@@ -407,7 +410,8 @@ Enjoy!
 Please contact me for any typo/error/mistake that you encounter in this Repository.  
 Make contact with me at  
 
-https://www.linkedin.com/in/eugenio-amato-developer
+https://www.linkedin.com/in/eugenio-amato-developer  
+
 eugenioama@hotmail.com  
 
 
