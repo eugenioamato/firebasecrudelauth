@@ -194,11 +194,14 @@ class _HomePageState extends State<HomePage> {
           Colors.black);
       stopLoading();
     }).catchError((e) {
-      if (e.toString().startsWith("[cloud_firestore/not-found]")) {
+      if ((e.toString().startsWith("[cloud_firestore/not-found]"))
+      || (e.toString().startsWith("FirebaseError: No document to update")))
+      {
         _showMessage('ERROR', 'ERROR ON UPDATE, THE RECORD WAS NOT FOUND',
             'Cannot update? WTF!', Colors.red);
-      } else {
-        _showMessage('ERROR', 'Error on update:\n', 'Ok', Colors.red);
+      } else
+        {
+        _showMessage('ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
       }
       stopLoading();
     });

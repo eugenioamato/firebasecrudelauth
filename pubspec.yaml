@@ -14,13 +14,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core:
+  firebase_core: ^0.7.0
   auto_size_text: ^2.1.0
   visibility_detector: ^0.1.5
   cupertino_icons: ^1.0.1
-  firebase: ^7.3.0
+  firebase: ^8.0.0
 #only mobile
-  cloud_firestore:
+  #cloud_firestore: ^0.16.0
 
 
 dev_dependencies:
