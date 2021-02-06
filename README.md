@@ -5,8 +5,7 @@
 
 An example to show crud operations in firebase
 
-## Pre-requisites
-### Switch to Beta channel for Web production
+## Specs
 
 This project was created with the following specs:
 >#android studio 4.1.2   
@@ -16,21 +15,7 @@ This project was created with the following specs:
 >#Tools • Dart 2.12.0 (build 2.12.0-133.2.beta)  
   
   
-To switch to the beta channel, use the next 2 commands in a terminal:  
-`flutter channel beta`  
-`flutter upgrade`  
-  
-Check then your config with :  
-`flutter devices`  
 
-The terminal should then show something like this.  
->2 connected device:  
->  
->Web Server • web-server • web-javascript • Flutter Tools  
->Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
-
-In case you don't see any device, you can try  
-`flutter config --enable-web`
 
 ### Create a new Firebase project
 
@@ -45,13 +30,16 @@ Note that the Project-Id is created here. You can customize the Project-Id choos
 You cannot edit it after the project is created, so try to find a better one (from the ones available) before going on.
 Indeed, Firebase will create a web hosting for your app, that will be accessible at  
 >https://[Project-Id].web.app  
+
 and  
+
 >https://[Project-Id].firebaseapp.com  
 
 You DON'T need to enable Google Analytics for this project.  
 
 Every time you create a project on Firebase, you are actually also creating a project into  
 >https://console.cloud.google.com/  
+
 Subscribe to it, and don't worry about inserting your credit card, the system will not charge you anything until you manually upgrade to a paid services.  
 
 ### Create an Android App  
@@ -62,11 +50,10 @@ Click on the Android icon to make a new entry for the app we will create here.
 
 
 In the next screen you will have to provide:  
-1:  
 ###### The applicationId of your Android project
 insert here  
 >com.[yourcustomname].firebase_crud_example  
-
+  
 Note that in your future projects you should replace my id (example) with your own custom company or personal name.  
 Note that you NEED to change this name in all these files:  
 ```
@@ -76,11 +63,9 @@ Android/app/src/Main/AndroidManifest.xml
 Android/app/src/Debug/AndroidManifest.xml
 Android/app/src/Profile/AndroidManifest.xml
 ```
-
-2:  
+  
 ###### A label to this android app  
-
-3:  
+  
 ###### Your Sha-1 debug signature  
 This signature comes from your machine and will always be the same, no matter what project you are working in.  
 To retrieve your SHA-1 debug signature, open a terminal and use this command:  
@@ -203,27 +188,183 @@ The Firebase Firestore is structured on a large JSON tree. Better remember this,
 # The app is finally working!
 
 You can now run the example in your favorite IDE, connected to an Android Emulator or to a physical device.  
-Having on the same screen your database console you can appreciate the data updating in real time.  
-## Create the record
-Try to click the "CREATE" button on the app.
+Having on the same screen your database console you can appreciate the data updating in real time. 
 
-![datainserted](/screenshots/datainserted.png)
-  
+
+![datainserted](/screenshots/datainserted.png)  
 Note that you can manually make all operations manually on the database.  
 This allows you to control all your data without using any software. You only need a browser (and your credentials).  
+## Initialize Firestore
+
+In the web version, the Initialization is made inside the file index.html , and the instance is retrieved trough the fire firebase/firestore.dart, in the plugin firebase 8.0  
+```
+fsi = firestore();
+```
+  
+In the mobile version, using the cloud_firestore plugin, the code is launched in the first initState of the first view:
+``` 
+await initializeApp();
+fsi= FirebaseFirestore.instance;
+```
+  
+
+## Exist operation  
+The exist operation is activated by the other methods, to avoid double writings or unchecked errors.
+> return (await fsi.collection(s).doc(t).get()).exists;
+  
+
+## Create the record
+Try to click the "CREATE" button on the app. 
+>return await fsi.collection(s).doc(t).set(map);
+
+The _create method checks first if the record exists (stopping with an error in that case), otherwise he sets data from a json map:  
+```
+bool exists = await DatabaseInterface().exists('users', 'testUser');
+if (exists) {
+      _showMessage('ERROR', 'ERROR ON CREATE: THE RECORD ALREADY EXISTS',
+          'Awww...', Colors.red);
+    } else {
+      await DatabaseInterface().set('users', 'testUser', {
+        'firstName': 'Sandro',
+        'lastName': 'Manzoni',
+      });
+
+```
+
+  
 ## Read the record  
 Click on the "READ" button.
-The central caption will show "Data found: ...." with the custom data we issued in our code.
-## Update the record  
-Click on the "UPDATE" button.
-The central caption will show "Record updated successfully: ..." with the new name we issued inside the code.
+>return (await fsi.collection(s).doc(t).get()).data();  
+
+The method tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
+If the data doesn't exist, this will result in `null`  
+
+```
+Map<String, dynamic> rec =
+        await DatabaseInterface().read('users', 'testUser');
+
+    if (rec == null) {
+      _showMessage('Error', 'ERROR ON READ, THE RECORD WAS NOT FOUND',
+          'What a pity...', Colors.red);
+    } else {
+      SplayTreeMap<String, dynamic> record = SplayTreeMap.from(rec);
+      _showMessage(
+          'Success!', 'Data found: $record', 'Got it!', Colors.black);
+    }
+```
+
+
 ## Delete the record  
 Click on the "DELETE" button.  
-The central caption will show "Record deleted successfully"
+>fsi.collection(s).doc(t).delete();  
 
-Trying to read, update, or delete the record when it doesn't exist will show an error caption.
+The _delete method checks first if the record exists (returning an error if it doesn't), otherwise it deletes all the document.  
+
+The central caption will show "Record deleted successfully"
+The exist check is necessary, because Firebase doesn't give an error when trying to delete something that doesn't exist.  
+
+```
+bool exists = await DatabaseInterface().exists('users', 'testUser');
+
+    if (!exists) {
+      _showMessage('ERROR', 'ERROR ON DELETE: THE RECORD DOESN`T EXIST',
+          'Can`t I delete the void?', Colors.red);
+    } else {
+      await DatabaseInterface().delete('users', 'testUser');
+      _showMessage('Success!', 'Record deleted Successfully!',
+          'I will miss it!', Colors.black);
+    }
+```
+
+
+## Update the record  
+Click on the "UPDATE" button.  
+>return fsi.collection(s).doc(t).update(data: map);
+  
+The _update method is different from the _create, because it will attempt to write only a record that is already there, throwing an error if it is not found. Catching the error can return a string representing the problem that occurred.
+```
+DatabaseInterface().update('users', 'testUser', {
+      'firstName': 'Alessandro',
+    }).then((_) {
+      _showMessage(
+          'Success!',
+          'Record updated Successfully! The name is changed to Alessandro',
+          'Ok, thank you!',
+          Colors.black);
+      Helper.stopLoading(context);
+    }).catchError((e) {
+      if ((e.toString().startsWith("[cloud_firestore/not-found]"))
+      || (e.toString().startsWith("FirebaseError: No document to update")))
+      {
+        _showMessage('ERROR', 'ERROR ON UPDATE, THE RECORD WAS NOT FOUND',
+            'Cannot update? WTF!', Colors.red);
+      } else
+        {
+        _showMessage('ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
+      }
+```
+  
+# Is the project working on ios?  
+
+The short answer : yes. 
+Adapting it for ios, however, demanded some patience: 
+The pod system is very odd. To make everything work I had to:  
+
+Create a IOS project inside Firebase console, in a similar way to what I did for the Android app, save the config file in ios/Runner/Google-Service-Info.plist and exclude the file in .gitignore  
+
+change the CFBundleName in the Info.plist file to match the one inside the plist  
+
+Sign the app with my apple developer license  
+
+`pods install -repo-update`  
+
+Clean the project multiple times
+change the second line of ios/Podfile to 
+>platform :ios, '10.0'  
+
+(Apparently, firebase requires it, but I am not totally sure)
+
+The result is just ok. No Magic here.  
+
+![iosscreen](/screenshots/iosscreen.png)
+
 
 # Let's try Flutter-Web
+
+### Switch to Beta channel for Web production
+To switch to the beta channel, use the next 2 commands in a terminal:  
+`flutter channel beta`  
+`flutter upgrade`  
+  
+Check then your config with :  
+`flutter devices`  
+
+The terminal should then show something like this.  
+>2 connected device:  
+>  
+>Web Server • web-server • web-javascript • Flutter Tools  
+>Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
+
+In case you don't see any device, you can try  
+`flutter config --enable-web`
+
+  
+## Implementing Flutter-Web
+  
+*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
+So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
+This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  *
+Inside pubspec.yaml, comment out this line adding an '#' before it:  
+`  #cloud_firestore: ^0.16.0`
+  
+and run
+`flutter pub get`
+
+*REMEMBER that you will have to un-comment the same line every time you want to compile the project to mobile.  
+Indeed, also the firebase plugin is not usable inside mobile application, because it uses html methods
+*
+
+
 
 Select now a different device for your build: Chrome 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
@@ -283,14 +424,15 @@ to import the configuration and initialize the app, with the analytics (only if 
   
 You will also need in your BODY section the following imports:  
   
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>  
 
-Insert also the analytics library if you enabled it in the previous steps.
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>  
+
+Insert also the analytics library if you enabled it in the previous steps.  
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>  
 
 Remember that, in case your app requires other libraries, you can find them on this website:  
->https://firebase.google.com/docs/web/setup#available-libraries
+>https://firebase.google.com/docs/web/setup#available-libraries  
 
 under "Available Firebase JS SDKs (from the CDN)"  
 
@@ -326,6 +468,7 @@ Here you can see the configuration.
 
 ![getconfig](/screenshots/getconfig.png)
 
+You can save this information copy-pasting it. However, you must know that this data may be wrong. The best way to retrieve the correct configuration uses the famous firebase-tools  
   
 # Let's start using the firebase-tools
   
@@ -369,7 +512,7 @@ run in terminal
   
 Select the web app and press enter.
 
-Create a file inside your project in the folder web (same folder as index.html) and insert the data in this way:  
+Create a file inside your project in the folder web (same folder as index.html) and insert the data adding the `export var ` specification and removing the surplus parentheses:  
 
 ```
 export var firebaseConfig = {
@@ -385,7 +528,7 @@ export var firebaseConfig = {
 
 Sometimes the measurementId may be missing. Don't worry, it is only needed if you requested the Analytics features. However, lacking to insert it will lead to a Warning on your web-page.
 
-# The app finally works!
+# The web app finally works!
 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
@@ -395,19 +538,63 @@ Run the project with the green PLAY button on Android Studio, or with the termin
 
 # Build and deploy to Web
 
+*Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
+*So, it's always a good practice to build and test the app in Release mode before deploy.*
+
 enter this commands in a terminal under your project root, but only if you already have completed the login-init procedure described above.  
+
 
 >flutter build web
   
 >firebase deploy
 
 The terminal will print 2 links. One for the relative configuration page, and one for the actual address of the published web app.
+Your app is now published, and you can share it the public, redirect a domain to it, and brag about it.  
 
-Enjoy!
+![fullapp](/screenshots/fullapp.png)
+
+
+# How can I force browsers to load the new version?
+
+Yes. The browsers are evil. If you use always the same names for files, even when you upload a new version, the users will still have the OLD version cached. And the browser will ignore totally what you did in the new version.
+But here's a trick you can use to force browsers to dump the old version:
+In index.html the line  
+` <script src="main.dart.js" type="application/javascript"></script>`
+  
+can be edited without breaking the app, adding a fake prop to the call in this way:  
+` <script src="main.dart.js?version=1.0.5" type="application/javascript"></script>`
+
+So, everytime you upload a new version of your web app, you should go up by 1 in this line, and, for coherence, in the third line of your pubspec.yaml  
+`version: 1.0.5`. (not mandatory)  
+  
+This will force the evil browsers to reload the entire app.  
+Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is not using an outdated version.  
+
+
+# Integration test
+  
+Inside the file `integration_test/app_test.dart` you can find a complete set of tests for the app.
+The integration test works with the use of the integration_test: ^1.0.0 plugin  
+To launch the tests for android,ios,or wearOs,  
+first launch the emulator (or connect the physical device)
+then run the command  
+>flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
+  
+The test can also be launched for Web, but you will have to install the chromedriver first, at  
+https://chromedriver.chromium.org/downloads
+  
+then run 2 commands:  
+>chromedriver --port=4444  
+
+>flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
+
+
 
 # Thanks and apologies  
 
-Please contact me for any typo/error/mistake that you encounter in this Repository.  
+Please contact me for any typo/error/mistake that you encounter in this Repository. 
+Pull requests are welcome.  
+
 Make contact with me at  
 
 https://www.linkedin.com/in/eugenio-amato-developer  
