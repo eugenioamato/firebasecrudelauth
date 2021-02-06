@@ -62,11 +62,10 @@ Click on the Android icon to make a new entry for the app we will create here.
 
 
 In the next screen you will have to provide:  
-1:  
 ###### The applicationId of your Android project
 insert here  
 >com.[yourcustomname].firebase_crud_example  
-
+  
 Note that in your future projects you should replace my id (example) with your own custom company or personal name.  
 Note that you NEED to change this name in all these files:  
 ```
@@ -76,11 +75,9 @@ Android/app/src/Main/AndroidManifest.xml
 Android/app/src/Debug/AndroidManifest.xml
 Android/app/src/Profile/AndroidManifest.xml
 ```
-
-2:  
+  
 ###### A label to this android app  
-
-3:  
+  
 ###### Your Sha-1 debug signature  
 This signature comes from your machine and will always be the same, no matter what project you are working in.  
 To retrieve your SHA-1 debug signature, open a terminal and use this command:  
