@@ -202,8 +202,9 @@ fsi = firestore();
 ```
   
 In the mobile version, using the cloud_firestore plugin, the code is launched in the first initState of the first view:
-``` await initializeApp();
-    fsi= FirebaseFirestore.instance;
+``` 
+await initializeApp();
+fsi= FirebaseFirestore.instance;
 ```
   
 
@@ -235,7 +236,7 @@ if (exists) {
 Click on the "READ" button.
 >return (await fsi.collection(s).doc(t).get()).data();  
 
-The tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
+The method tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
 If the data doesn't exist, this will result in `null`  
 
 ```
@@ -326,16 +327,18 @@ In case you don't see any device, you can try
   
 ## Implementing Flutter-Web
   
-The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
+*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
 So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
-This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  
-Inside pubspec.yaml, comment out this line:  
+This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  *
+Inside pubspec.yaml, comment out this line adding an '#' before it:  
 `  #cloud_firestore: ^0.16.0`
   
 and run
 `flutter pub get`
 
-REMEMBER that you will have to un-comment the same line every time you want to compile the project to mobile.  
+*REMEMBER that you will have to un-comment the same line every time you want to compile the project to mobile.  
+Indeed, also the firebase plugin is not usable inside mobile application, because it uses html methods
+*
 
 
 
@@ -397,14 +400,14 @@ to import the configuration and initialize the app, with the analytics (only if 
   
 You will also need in your BODY section the following imports:  
   
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>  
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>  
 
 Insert also the analytics library if you enabled it in the previous steps.
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>
+>  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>  
 
 Remember that, in case your app requires other libraries, you can find them on this website:  
->https://firebase.google.com/docs/web/setup#available-libraries
+>https://firebase.google.com/docs/web/setup#available-libraries  
 
 under "Available Firebase JS SDKs (from the CDN)"  
 
@@ -440,6 +443,7 @@ Here you can see the configuration.
 
 ![getconfig](/screenshots/getconfig.png)
 
+You can save this information copy-pasting it. However, you must know that this data may be wrong. The best way to retrieve the correct configuration uses the famous firebase-tools  
   
 # Let's start using the firebase-tools
   
@@ -483,7 +487,7 @@ run in terminal
   
 Select the web app and press enter.
 
-Create a file inside your project in the folder web (same folder as index.html) and insert the data in this way:  
+Create a file inside your project in the folder web (same folder as index.html) and insert the data adding the `export var ` specification and removing the surplus parentheses:  
 
 ```
 export var firebaseConfig = {
