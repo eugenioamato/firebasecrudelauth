@@ -3,7 +3,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'database_interface.dart';
+import 'database_interface.dart' if (dart.library.html)
+  'web_database_interface.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -114,9 +115,10 @@ class _HomePageState extends State<HomePage> {
   Key formKey = Key('form');
 
   initState() {
-    DatabaseInterface().init(stopLoading);
 
     super.initState();
+    DatabaseInterface().init(stopLoading);
+    stopLoading();
   }
 
   startLoading() {

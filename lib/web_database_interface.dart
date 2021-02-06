@@ -1,20 +1,20 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'cloudstub.dart'
-if (dart.library.io)
-'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase/firebase.dart';
+import 'package:firebase/firestore.dart';
+
 
 class DatabaseInterface {
-  static FirebaseFirestore fsi;
+  static Firestore fsi;
 
-   /// Creates the Firebase connection, only needed in mobile version.
-   /// (The Web version is connected in the index.html file)
+  /// Creates the Firebase connection, only needed in mobile version.
+  /// (The Web version is connected in the index.html file)
   initializeApp() async {
     await Firebase.initializeApp();
   }
   /// Retrieves the database instance
-  void init(Function() stopLoading) async {
-    await DatabaseInterface().initializeApp();
-    fsi= FirebaseFirestore.instance;
+  void init(Function() stopLoading) {
+
+    fsi = firestore();
     stopLoading();
   }
 
@@ -27,8 +27,8 @@ class DatabaseInterface {
 
   /// Sets the value at Collection s, Document t
   /// with the data contained in the Map map
-   set(String s, String t, Map<String, dynamic> map) async {
-   return await fsi.collection(s).doc(t).set(map);
+  set(String s, String t, Map<String, dynamic> map) async {
+    return await fsi.collection(s).doc(t).set(map);
 
   }
 
@@ -42,18 +42,17 @@ class DatabaseInterface {
   /// Tries to update the values listed inside map
   /// inside Collection s, Document t
   /// Throws an error if the data doesn't exist
-   update(String s, String t, Map<String, dynamic> map) async {
+  update(String s, String t, Map<String, dynamic> map) async {
 
-    return fsi.collection(s).doc(t).update(map);
+    return fsi.collection(s).doc(t).update(data: map);
 
   }
 
   /// Tries to delete the entire Document t inside Collection s
   /// Doesn't throw an error if the data doesn't exist
-   delete(String s, String t) {
+  delete(String s, String t) {
     fsi.collection(s).doc(t).delete();
 
   }
 
 }
-
