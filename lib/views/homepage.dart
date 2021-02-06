@@ -2,11 +2,13 @@ import 'dart:collection';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
+import '../helper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'database_interface.dart' if (dart.library.html)
+import '../services/database_interface.dart' if (dart.library.html)
   'web_database_interface.dart';
 
 class HomePage extends StatefulWidget {
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -17,8 +19,6 @@ class _HomePageState extends State<HomePage> {
   String formCaption = 'Ready!';
   Color formColor = Colors.black;
   bool formVisible = true;
-
-  bool loading = true;
 
   List<Widget> get pageItems => [
         Image.asset(
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                         semanticsLabel: 'Create',
                         maxLines: 1,
                       ),
-                      onPressed: loading ? null : _create,
+                      onPressed: Helper.isLoading() ? null : _create,
                     ),
                     SizedBox(
                       height: vstep,
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                         semanticsLabel: 'Read',
                         maxLines: 1,
                       ),
-                      onPressed: loading ? null : _read,
+                      onPressed: Helper.isLoading() ? null : _read,
                     ),
                     SizedBox(
                       height: vstep,
@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                         semanticsLabel: 'Update',
                         maxLines: 1,
                       ),
-                      onPressed: loading ? null : _update,
+                      onPressed: Helper.isLoading() ? null : _update,
                     ),
                     SizedBox(
                       height: vstep,
@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                         semanticsLabel: 'Delete',
                         maxLines: 1,
                       ),
-                      onPressed: loading ? null : _delete,
+                      onPressed: Helper.isLoading() ? null : _delete,
                     ),
                   ]),
             ),
@@ -115,23 +115,12 @@ class _HomePageState extends State<HomePage> {
   Key formKey = Key('form');
 
   initState() {
-
     super.initState();
-    DatabaseInterface().init(stopLoading);
-    stopLoading();
+
+    Helper.startLoading(this);
+    DatabaseInterface().init(()=>Helper.stopLoading(this));
   }
 
-  startLoading() {
-    setState(() {
-      loading = true;
-    });
-  }
-
-  stopLoading() {
-    setState(() {
-      loading = false;
-    });
-  }
 
   Future<void> _showMessage(String messageTitle, String message,
       String okCaption, Color textColor) async {
@@ -145,7 +134,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _create() async {
-    startLoading();
+    Helper.startLoading(this);
     bool exists = await DatabaseInterface().exists('users', 'testUser');
 
     if (exists) {
@@ -161,11 +150,11 @@ class _HomePageState extends State<HomePage> {
           'Success!', 'Record written Successfully', 'Ok!', Colors.black);
     }
 
-    stopLoading();
+    Helper.stopLoading(this);
   }
 
   void _read() async {
-    startLoading();
+    Helper.startLoading(this);
     Map<String, dynamic> rec =
         await DatabaseInterface().read('users', 'testUser');
 
@@ -178,11 +167,11 @@ class _HomePageState extends State<HomePage> {
           'Success!', 'Data found: $record', 'Got it!', Colors.black);
     }
 
-    stopLoading();
+    Helper.stopLoading(this);
   }
 
   void _update() async {
-    startLoading();
+    Helper.startLoading(this);
 
     DatabaseInterface().update('users', 'testUser', {
       'firstName': 'Alessandro',
@@ -192,7 +181,7 @@ class _HomePageState extends State<HomePage> {
           'Record updated Successfully! The name is changed to Alessandro',
           'Ok, thank you!',
           Colors.black);
-      stopLoading();
+      Helper.stopLoading(this);
     }).catchError((e) {
       if ((e.toString().startsWith("[cloud_firestore/not-found]"))
       || (e.toString().startsWith("FirebaseError: No document to update")))
@@ -203,12 +192,12 @@ class _HomePageState extends State<HomePage> {
         {
         _showMessage('ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
       }
-      stopLoading();
+      Helper.stopLoading(this);
     });
   }
 
   void _delete() async {
-    startLoading();
+    Helper.startLoading(this);
     bool exists = await DatabaseInterface().exists('users', 'testUser');
 
     if (!exists) {
@@ -220,7 +209,7 @@ class _HomePageState extends State<HomePage> {
           'I will miss it!', Colors.black);
     }
 
-    stopLoading();
+    Helper.stopLoading(this);
   }
 
   @override
@@ -246,7 +235,7 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
               toolbarHeight: vstep,
-              title: loading
+              title: Helper.isLoading()
                   ? LinearProgressIndicator(minHeight: vstep)
                   : Container(color: Colors.transparent,),
             ),

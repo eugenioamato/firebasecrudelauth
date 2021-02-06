@@ -1,12 +1,15 @@
-
-import 'package:firebase_crud_example/database_interface.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_crud_example/helper.dart';
+import 'package:flutter/foundation.dart' show Key;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:firebase_crud_example/app.dart' as app;
 
+import 'package:firebase_crud_example/services/database_interface.dart'
+if (dart.library.html)
+ 'package:firebase_crud_example/web_database_interface.dart';
+
 /**
-TO TEST ON FLUTTER / ANDROID or FLUTTER / IOS ,
+TO TEST ON ANDROID, WEAROS or IOS ,
   OPEN THE SIMULATOR AND RUN NEXT COMMAND
 flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
 */
@@ -26,7 +29,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async{
-    await DatabaseInterface().initializeApp();
+    await DatabaseInterface().init(()=>Helper.stopLoading);
   });
 
   testWidgets('Pressing delete button '
@@ -122,8 +125,7 @@ void main() {
           findsOneWidget,
         );
 
-            //await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-            //await tester.pumpAndSettle();
+            await tester.pumpAndSettle();
 
         await tester.tap(find.bySemanticsLabel('Create'));
         await tester.pumpAndSettle();

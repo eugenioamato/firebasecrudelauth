@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase/firebase.dart';
 import 'package:firebase/firestore.dart';
 
@@ -6,13 +5,12 @@ import 'package:firebase/firestore.dart';
 class DatabaseInterface {
   static Firestore fsi;
 
-  /// Creates the Firebase connection, only needed in mobile version.
-  /// (The Web version is connected in the index.html file)
+  /// Does nothing in web. The app is already initialized in index.html
   initializeApp() async {
-    await Firebase.initializeApp();
   }
+
   /// Retrieves the database instance
-  void init(Function() stopLoading) {
+  Future<void> init(Function() stopLoading) async {
 
     fsi = firestore();
     stopLoading();

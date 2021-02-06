@@ -10,10 +10,11 @@ class DatabaseInterface {
    /// (The Web version is connected in the index.html file)
   initializeApp() async {
     await Firebase.initializeApp();
+
   }
   /// Retrieves the database instance
-  void init(Function() stopLoading) async {
-    await DatabaseInterface().initializeApp();
+  Future<void> init(Function() stopLoading) async {
+    await initializeApp();
     fsi= FirebaseFirestore.instance;
     stopLoading();
   }
