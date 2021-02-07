@@ -382,7 +382,7 @@ Indeed, also the firebase plugin is not usable inside mobile application, becaus
 
 
 
-Select now a different device for your build: Chrome 
+Select now a different device for your build: Chrome  
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
 
