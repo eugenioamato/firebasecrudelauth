@@ -675,6 +675,18 @@ then run 2 commands:
 *The integration test has a small bug for web. The chrome driver will NOT send you a log for every test, and there's nothing to do about it because it depends on Chrome Developers.  
 But it's a very small bug. Because, if the tests have no errors, you will get  'ALL TESTS PASSED', and if you have an error, you will get the error log for that error in the expected way.*
 
+Let's explain shortly the commands found in the test set.  
+
+command | meaning
+------- | -------
+await tester.pumpWidget(app.FirebaseCrudExampleApp()); | Opens the app and waits for the loading.
+find.textContaining('Ready!') | Can find a specific text in the App
+expect(finder, findsOneWidget) | If this expectation is false, stop testing and throw error
+expect(finder, findsNWidgets(2)) | Same, but with N results accepted (in this case, 2)
+await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300)); | This command drags the mouse or finger up
+await tester.pumpAndSettle(); | Will wait until the UI has finished all animations
+await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false)); | Taps on a widget marked by his semantics
+
 
 
 # Thanks and apologies  
