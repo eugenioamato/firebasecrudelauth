@@ -48,8 +48,9 @@ Subscribe to it, and don't worry about inserting your credit card, the system wi
 Click on the Android icon to make a new entry for the app we will create here.
 
 
-
-In the next screen you will have to provide:  
+![androidappregister](/screenshots/androidappregister.png)
+  
+  
 ###### The applicationId of your Android project
 insert here  
 >com.[yourcustomname].firebase_crud_example  
@@ -63,7 +64,7 @@ Android/app/src/Main/AndroidManifest.xml
 Android/app/src/Debug/AndroidManifest.xml
 Android/app/src/Profile/AndroidManifest.xml
 ```
-  
+    
 ###### A label to this android app  
   
 ###### Your Sha-1 debug signature  
@@ -79,6 +80,9 @@ The requested password is always
 >android
 
 ## Download the config file  
+
+
+![downloadservices](/screenshots/downloadservices.png)
 
 Save the google-services.json file in a secure place (NOT ON YOUR DESKTOP). You will need to insert a copy of this file into  
 >Android/App  
@@ -311,7 +315,17 @@ The short answer : yes.
 Adapting it for ios, however, demanded some patience: 
 The pod system is very odd. To make everything work I had to:  
 
-Create a IOS project inside Firebase console, in a similar way to what I did for the Android app, save the config file in ios/Runner/Google-Service-Info.plist and exclude the file in .gitignore  
+Create a IOS project inside Firebase console, in a similar way to what I did for the Android app  
+
+![iosdata](/screenshots/iosdata.png)
+
+
+..save the config file in ios/Runner/Google-Service-Info.plist 
+
+
+![downloadplist](/screenshots/downloadplist.png)
+
+and exclude the file in .gitignore  
 
 change the CFBundleName in the Info.plist file to match the one inside the plist  
 
@@ -571,6 +585,74 @@ So, everytime you upload a new version of your web app, you should go up by 1 in
 This will force the evil browsers to reload the entire app.  
 Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is not using an outdated version.  
 
+# Conditional imports
+
+In the main view (HomePage) you can see this strange import:  
+
+```
+import '../services/database_interface.dart' if (dart.library.html)
+  '../services/web_database_interface.dart';
+```  
+  
+The compiler will understand that we are compiling the project to Web because he will find the html library.  
+But, remember what we said before? The app cannot be compiled for Web if we have the cloud_firestore plugin loaded. 
+So what happens when we remove that plugin (commenting it with '#' and runing `flutter pub get` ?
+The Android Studio IDE is unable to understand that we are going to work only for web, and our Dart Analysis will show a lot of errors. 
+
+  
+![stuberrors](/screenshots/stuberrors.png)
+  
+Why is that? In the file `database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
+--image
+  
+Very annoying isn't it?
+Also because the project can be compiled and run without any problem.  
+So I had the idea to insert another conditional import inside the database_interface.dart  
+```
+import 'cloudstub.dart'
+if (dart.library.io)
+'package:cloud_firestore/cloud_firestore.dart';
+```  
+
+and a lovely fake file (that will never be compiled) that I call a *stub*  
+```
+class FirebaseFirestore {
+  static FirebaseFirestore instance;
+  collection(String s) {}
+}
+```
+  
+This file acts as an interface, and can be compiled simply creating all the classes and methods marked with a red underscore.
+In Android it's possible to hover your mouse over the red underscores and select the *quick fix* :  
+>Create class %%%%%  
+
+or
+
+>Create method %%%%%
+  
+Voila! The IDE is not complaining anymore.
+
+# How are you managing the loading system to be responsive?
+
+Every time the user is waiting for an asynchronous task, we have to start immediately some animation. In this project, we are also denying the user to issue other commands before the other is completed. So the build method disables the RaisedButtons simply placing a `null` in their onPressed property.    
+The naïve solution to this problem is to create a bool named loading, to check if the bool is true or false every time we build our view, and to call a setState every time we start or finish a loading.  
+A cleaner way is to call two methods that make the loading start or stop.  
+A more clean way, in my opinion, is to create a helper class that cares about it.  
+Calling the method is done as this:  
+
+>Helper.startLoading(this);  
+  
+>Helper.stopLoading(this);  
+  
+When we write `this` in a View, we are actually sending the State of the widget. It is used as:  
+
+>static void startLoading(State<HomePage> s)=> s.setState((){_loading=true;});  
+  
+>static void stopLoading(State<HomePage> s)=> s.setState((){_loading=false;});  
+  
+In this way we can start or stop the loading even if we change view with the navigator, and we can use these methods also during the integration test.
+  
+  
 
 # Integration test
   
@@ -588,6 +670,9 @@ then run 2 commands:
 >chromedriver --port=4444  
 
 >flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
+
+*The integration test has a small bug for web. The chrome driver will NOT send you a log for every test, and there's nothing to do about it because it depends on Chrome Developers.  
+But it's a very small bug. Because, if the tests have no errors, you will get  'ALL TESTS PASSED', and if you have an error, you will get the error log for that error in the expected way.*
 
 
 
