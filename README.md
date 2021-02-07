@@ -671,6 +671,20 @@ In this way we can start or stop the loading even if we change view with the nav
   
 Inside the file `integration_test/app_test.dart` you can find a complete set of tests for the app.
 The integration test works with the use of the integration_test: ^1.0.0 plugin  
+  
+The project contains a file inside test_driver/integrationd_driver.dart
+that loads a custom driver:  
+
+```
+import 'package:integration_test/integration_test_driver.dart';
+Future<void> main() {
+  integrationDriver();
+  return Future.value(true);
+}
+```  
+
+
+
 To launch the tests for android,ios,or wearOs,  
 first launch the emulator (or connect the physical device)
 then run the command  
@@ -704,11 +718,11 @@ This integration test has 4 tests:
 2 : checks if we have an error when UPDATING, if the database is empty  
 3 : checks if we have an error when DELETING, if the database is empty  
 4 : does those operations:
-  CREATE a record with SANDRO MANZONI as firstname and lastname
-  READ it to check if the data is correct
-  UPDATE it with the name ALESSANDRO as firstname
-  DELETE the record
-  
+  CREATE a record with SANDRO MANZONI as firstname and lastname  
+  READ it to check if the data is correct  
+  UPDATE it with the name ALESSANDRO as firstname  
+  DELETE the record  
+    
   If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED"
 
 
