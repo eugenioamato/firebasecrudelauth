@@ -196,15 +196,17 @@ Note that you can manually make all operations manually on the database.
 This allows you to control all your data without using any software. You only need a browser (and your credentials).  
 ## Initialize Firestore
 
-In the web version, the Initialization is made inside the file index.html , and the instance is retrieved trough the fire firebase/firestore.dart, in the plugin firebase 8.0  
-```
-fsi = firestore();
-```
   
-In the mobile version, using the cloud_firestore plugin, the code is launched in the first initState of the first view:
+In the mobile version, the code is launched in the first `initState` of the first view, through the `cloud_firestore: 0.16.0` plugin
 ``` 
 await initializeApp();
 fsi= FirebaseFirestore.instance;
+```
+  
+
+In the web version, the Initialization is made inside the file `index.html` , and the instance is retrieved through `firebase/firestore.dart`, in the plugin `firebase: 8.0`   
+```
+fsi = firestore();
 ```
   
 
@@ -236,7 +238,7 @@ if (exists) {
 Click on the "READ" button.
 >return (await fsi.collection(s).doc(t).get()).data();  
 
-The method tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
+The method tries to read data and transforms the resulting unordered map in a `SplayTreeMap` (automatically ordered with binary search).
 If the data doesn't exist, this will result in `null`  
 
 ```
@@ -260,7 +262,6 @@ Click on the "DELETE" button.
 
 The _delete method checks first if the record exists (returning an error if it doesn't), otherwise it deletes all the document.  
 
-The central caption will show "Record deleted successfully"
 The exist check is necessary, because Firebase doesn't give an error when trying to delete something that doesn't exist.  
 
 ```
@@ -315,16 +316,16 @@ Create a IOS project inside Firebase console, in a similar way to what I did for
 change the CFBundleName in the Info.plist file to match the one inside the plist  
 
 Sign the app with my apple developer license  
-
+  
+I had to deep clean the project multiple times with:  
 `pods install -repo-update`  
 
-Clean the project multiple times
 change the second line of ios/Podfile to 
 >platform :ios, '10.0'  
 
-(Apparently, firebase requires it, but I am not totally sure)
+(Apparently, firebase requires it)
 
-The result is just ok. No Magic here.  
+The result is faster and smoother than the Android version.   
 
 ![iosscreen](/screenshots/iosscreen.png)
 
@@ -351,7 +352,7 @@ In case you don't see any device, you can try
   
 ## Implementing Flutter-Web
   
-*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
+*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initializeApp, and the error happens during the registration of the plugin.
 So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
 This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  *
 Inside pubspec.yaml, comment out this line adding an '#' before it:  
@@ -391,7 +392,7 @@ However, we note this line:
 
 This file is not included in the repository. Exactly like the google-services.json file, it contains sensitive data on your personal access to your Firebase account, and thus should NEVER be included in a repository.
 
-This data cannot be inputted manually. We must request to Firebase to create a web-app. Indeed, the configuration we already have was created for an Android App, and this is a totally different thing.  
+This data cannot be input manually. We must request to Firebase to create a web-app. Indeed, the configuration we already have was created for an Android App, and this is a totally different thing.  
 
 # Let's create a new Web-App inside the Firebase Console.  
 
