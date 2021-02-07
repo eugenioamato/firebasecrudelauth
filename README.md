@@ -48,8 +48,9 @@ Subscribe to it, and don't worry about inserting your credit card, the system wi
 Click on the Android icon to make a new entry for the app we will create here.
 
 
-
-In the next screen you will have to provide:  
+![androidappregister](/screenshots/androidappregister.png)
+  
+  
 ###### The applicationId of your Android project
 insert here  
 >com.[yourcustomname].firebase_crud_example  
@@ -63,7 +64,7 @@ Android/app/src/Main/AndroidManifest.xml
 Android/app/src/Debug/AndroidManifest.xml
 Android/app/src/Profile/AndroidManifest.xml
 ```
-  
+    
 ###### A label to this android app  
   
 ###### Your Sha-1 debug signature  
@@ -72,6 +73,7 @@ To retrieve your SHA-1 debug signature, open a terminal and use this command:
 
 MacOs:  
 >keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore  
+
 Windows:  
 >keytool -list -v -alias androiddebugkey -keystore %USERPROFILE%\.android\debug.keystore  
 
@@ -79,6 +81,9 @@ The requested password is always
 >android
 
 ## Download the config file  
+
+
+![downloadservices](/screenshots/downloadservices.png)
 
 Save the google-services.json file in a secure place (NOT ON YOUR DESKTOP). You will need to insert a copy of this file into  
 >Android/App  
@@ -196,15 +201,17 @@ Note that you can manually make all operations manually on the database.
 This allows you to control all your data without using any software. You only need a browser (and your credentials).  
 ## Initialize Firestore
 
-In the web version, the Initialization is made inside the file index.html , and the instance is retrieved trough the fire firebase/firestore.dart, in the plugin firebase 8.0  
-```
-fsi = firestore();
-```
   
-In the mobile version, using the cloud_firestore plugin, the code is launched in the first initState of the first view:
+In the mobile version, the code is launched in the first `initState` of the first view, through the `cloud_firestore: 0.16.0` plugin
 ``` 
 await initializeApp();
 fsi= FirebaseFirestore.instance;
+```
+  
+
+In the web version, the Initialization is made inside the file `index.html` , and the instance is retrieved through `firebase/firestore.dart`, in the plugin `firebase: 8.0`   
+```
+fsi = firestore();
 ```
   
 
@@ -236,7 +243,7 @@ if (exists) {
 Click on the "READ" button.
 >return (await fsi.collection(s).doc(t).get()).data();  
 
-The method tries to read data and transforms the resulting unordered map in a SplayTreeMap (automatically ordered with binary search).
+The method tries to read data and transforms the resulting unordered map in a `SplayTreeMap` (automatically ordered with binary search).
 If the data doesn't exist, this will result in `null`  
 
 ```
@@ -260,7 +267,6 @@ Click on the "DELETE" button.
 
 The _delete method checks first if the record exists (returning an error if it doesn't), otherwise it deletes all the document.  
 
-The central caption will show "Record deleted successfully"
 The exist check is necessary, because Firebase doesn't give an error when trying to delete something that doesn't exist.  
 
 ```
@@ -310,21 +316,31 @@ The short answer : yes.
 Adapting it for ios, however, demanded some patience: 
 The pod system is very odd. To make everything work I had to:  
 
-Create a IOS project inside Firebase console, in a similar way to what I did for the Android app, save the config file in ios/Runner/Google-Service-Info.plist and exclude the file in .gitignore  
+Create a IOS project inside Firebase console, in a similar way to what I did for the Android app  
+
+![iosdata](/screenshots/iosdata.png)
+
+
+..save the config file in ios/Runner/Google-Service-Info.plist 
+
+
+![downloadplist](/screenshots/downloadplist.png)
+
+and exclude the file in .gitignore  
 
 change the CFBundleName in the Info.plist file to match the one inside the plist  
 
 Sign the app with my apple developer license  
-
+  
+I had to deep clean the project multiple times with:  
 `pods install -repo-update`  
 
-Clean the project multiple times
 change the second line of ios/Podfile to 
 >platform :ios, '10.0'  
 
-(Apparently, firebase requires it, but I am not totally sure)
+(Apparently, firebase requires it)
 
-The result is just ok. No Magic here.  
+The result is faster and smoother than the Android version.   
 
 ![iosscreen](/screenshots/iosscreen.png)
 
@@ -351,7 +367,7 @@ In case you don't see any device, you can try
   
 ## Implementing Flutter-Web
   
-*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initialeApp, and the error happens during the registration of the plugin.
+*The plugin cloud_firestore has a bug. It tries to request data to Firebase before initializeApp, and the error happens during the registration of the plugin.
 So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
 This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  *
 Inside pubspec.yaml, comment out this line adding an '#' before it:  
@@ -366,7 +382,7 @@ Indeed, also the firebase plugin is not usable inside mobile application, becaus
 
 
 
-Select now a different device for your build: Chrome 
+Select now a different device for your build: Chrome  
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
 
@@ -391,7 +407,7 @@ However, we note this line:
 
 This file is not included in the repository. Exactly like the google-services.json file, it contains sensitive data on your personal access to your Firebase account, and thus should NEVER be included in a repository.
 
-This data cannot be inputted manually. We must request to Firebase to create a web-app. Indeed, the configuration we already have was created for an Android App, and this is a totally different thing.  
+This data cannot be input manually. We must request to Firebase to create a web-app. Indeed, the configuration we already have was created for an Android App, and this is a totally different thing.  
 
 # Let's create a new Web-App inside the Firebase Console.  
 
@@ -570,6 +586,74 @@ So, everytime you upload a new version of your web app, you should go up by 1 in
 This will force the evil browsers to reload the entire app.  
 Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is not using an outdated version.  
 
+# Conditional imports
+
+In the main view (HomePage) you can see this strange import:  
+
+```
+import '../services/database_interface.dart' if (dart.library.html)
+  '../services/web_database_interface.dart';
+```  
+  
+The compiler will understand that we are compiling the project to Web because he will find the html library.  
+But, remember what we said before? The app cannot be compiled for Web if we have the cloud_firestore plugin loaded. 
+So what happens when we remove that plugin (commenting it with '#' and runing `flutter pub get` ?
+The Android Studio IDE is unable to understand that we are going to work only for web, and our Dart Analysis will show a lot of errors. 
+
+  
+![stuberrors](/screenshots/stuberrors.png)
+  
+Why is that? In the file `database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
+--image
+  
+Very annoying isn't it?
+Also because the project can be compiled and run without any problem.  
+So I had the idea to insert another conditional import inside the database_interface.dart  
+```
+import 'cloudstub.dart'
+if (dart.library.io)
+'package:cloud_firestore/cloud_firestore.dart';
+```  
+
+and a lovely fake file (that will never be compiled) that I call a *stub*  
+```
+class FirebaseFirestore {
+  static FirebaseFirestore instance;
+  collection(String s) {}
+}
+```
+  
+This file acts as an interface, and can be compiled simply creating all the classes and methods marked with a red underscore.
+In Android it's possible to hover your mouse over the red underscores and select the *quick fix* :  
+>Create class %%%%%  
+
+or
+
+>Create method %%%%%
+  
+Voila! The IDE is not complaining anymore.
+
+# How are you managing the loading system to be responsive?
+
+Every time the user is waiting for an asynchronous task, we have to start immediately some animation. In this project, we are also denying the user to issue other commands before the other is completed. So the build method disables the RaisedButtons simply placing a `null` in their onPressed property.    
+The naïve solution to this problem is to create a bool named loading, to check if the bool is true or false every time we build our view, and to call a setState every time we start or finish a loading.  
+A cleaner way is to call two methods that make the loading start or stop.  
+A more clean way, in my opinion, is to create a helper class that cares about it.  
+Calling the method is done as this:  
+
+>Helper.startLoading(this);  
+  
+>Helper.stopLoading(this);  
+  
+When we write `this` in a View, we are actually sending the State of the widget. It is used as:  
+
+>static void startLoading(State<HomePage> s)=> s.setState((){_loading=true;});  
+  
+>static void stopLoading(State<HomePage> s)=> s.setState((){_loading=false;});  
+  
+In this way we can start or stop the loading even if we change view with the navigator, and we can use these methods also during the integration test.
+  
+  
 
 # Integration test
   
@@ -587,6 +671,9 @@ then run 2 commands:
 >chromedriver --port=4444  
 
 >flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
+
+*The integration test has a small bug for web. The chrome driver will NOT send you a log for every test, and there's nothing to do about it because it depends on Chrome Developers.  
+But it's a very small bug. Because, if the tests have no errors, you will get  'ALL TESTS PASSED', and if you have an error, you will get the error log for that error in the expected way.*
 
 
 
