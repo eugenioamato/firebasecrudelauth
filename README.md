@@ -310,6 +310,14 @@ DatabaseInterface().update('users', 'testUser', {
       }
 ```
   
+  
+# Is the project working on WearOs?
+  
+WearOs can be considered a normal Android application. The only thing to care about, is that the screen is very small. But using the Auto-Size-Text plugin, everything can be read properly.
+Also, I have added the visibility_detector plugin to check if the error/success message is visible when a message is printed. If it is not visible, the ListView will be animated to the top to allow the correct behaviour of the app also on WearOs. 
+Everything else is working as expected, and we don't need any other management because the Android configuration applies to WearOs without problems.
+  
+
 # Is the project working on ios?  
 
 The short answer : yes. 
@@ -339,6 +347,10 @@ change the second line of ios/Podfile to
 >platform :ios, '10.0'  
 
 (Apparently, firebase requires it)
+
+If you enabled the Analytics, remember to add it in the pods file:  
+>pod 'GoogleAnalytics'
+
 
 The result is faster and smoother than the Android version.   
 
@@ -552,7 +564,7 @@ Run the project with the green PLAY button on Android Studio, or with the termin
 
 
 
-# Build and deploy to Web
+## Build and deploy to Web
 
 *Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
 *So, it's always a good practice to build and test the app in Release mode before deploy.*
@@ -667,7 +679,7 @@ then run the command
 The test can also be launched for Web, but you will have to install the chromedriver first, at  
 https://chromedriver.chromium.org/downloads
   
-then run 2 commands:  
+then run 2 commands in 2 different terminals:  
 >chromedriver --port=4444  
 
 >flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
@@ -687,6 +699,17 @@ await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300)); | This 
 await tester.pumpAndSettle(); | Will wait until the UI has finished all animations
 await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false)); | Taps on a widget marked by his semantics
 
+This integration test has 4 tests:  
+1 : checks if we have an error when READING, if the database is empty  
+2 : checks if we have an error when UPDATING, if the database is empty  
+3 : checks if we have an error when DELETING, if the database is empty  
+4 : does those operations:
+  CREATE a record with SANDRO MANZONI as firstname and lastname
+  READ it to check if the data is correct
+  UPDATE it with the name ALESSANDRO as firstname
+  DELETE the record
+  
+  If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED"
 
 
 # Thanks and apologies  
