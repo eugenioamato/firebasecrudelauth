@@ -604,7 +604,7 @@ The Android Studio IDE is unable to understand that we are going to work only fo
 ![stuberrors](/screenshots/stuberrors.png)
   
 Why is that? In the file `database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
---image
+
   
 Very annoying isn't it?
 Also because the project can be compiled and run without any problem.  
@@ -623,7 +623,7 @@ class FirebaseFirestore {
 }
 ```
   
-This file acts as an interface, and can be compiled simply creating all the classes and methods marked with a red underscore.
+This file acts as an interface, and can be prepared simply creating all the classes and methods marked with a red underscore.
 In Android it's possible to hover your mouse over the red underscores and select the *quick fix* :  
 >Create class %%%%%  
 
