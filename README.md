@@ -1,7 +1,7 @@
 # FIREBASE CRUD OPERATIONS on FLUTTER WEB and MOBILE
 
 
-![homepage](/screenshots/homepage.png)
+![allscreens](/screenshots/allscreens.png)
 
 An example to show crud operations in firebase
 
