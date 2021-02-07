@@ -73,6 +73,7 @@ To retrieve your SHA-1 debug signature, open a terminal and use this command:
 
 MacOs:  
 >keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore  
+
 Windows:  
 >keytool -list -v -alias androiddebugkey -keystore %USERPROFILE%\.android\debug.keystore  
 
