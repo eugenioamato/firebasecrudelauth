@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import 'views/homepage.dart';
-
 class Helper
 {
   static bool _loading=false;
