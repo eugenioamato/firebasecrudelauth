@@ -1,7 +1,7 @@
 # FIREBASE CRUD OPERATIONS on FLUTTER WEB and MOBILE
 
 
-![homepage](/screenshots/homepage.png)
+![allscreens](/screenshots/allscreens.png)
 
 An example to show crud operations in firebase
 
@@ -310,6 +310,14 @@ DatabaseInterface().update('users', 'testUser', {
       }
 ```
   
+  
+# Is the project working on WearOs?
+  
+WearOs can be considered a normal Android application. The only thing to care about, is that the screen is very small. But using the Auto-Size-Text plugin, everything can be read properly.
+Also, I have added the visibility_detector plugin to check if the error/success message is visible when a message is printed. If it is not visible, the ListView will be animated to the top to allow the correct behaviour of the app also on WearOs. 
+Everything else is working as expected, and we don't need any other management because the Android configuration applies to WearOs without problems.
+  
+
 # Is the project working on ios?  
 
 The short answer : yes. 
@@ -339,6 +347,10 @@ change the second line of ios/Podfile to
 >platform :ios, '10.0'  
 
 (Apparently, firebase requires it)
+
+If you enabled the Analytics, remember to add it in the pods file:  
+>pod 'GoogleAnalytics'
+
 
 The result is faster and smoother than the Android version.   
 
@@ -552,7 +564,7 @@ Run the project with the green PLAY button on Android Studio, or with the termin
 
 
 
-# Build and deploy to Web
+## Build and deploy to Web
 
 *Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
 *So, it's always a good practice to build and test the app in Release mode before deploy.*
@@ -604,7 +616,7 @@ The Android Studio IDE is unable to understand that we are going to work only fo
 ![stuberrors](/screenshots/stuberrors.png)
   
 Why is that? In the file `database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
---image
+
   
 Very annoying isn't it?
 Also because the project can be compiled and run without any problem.  
@@ -623,7 +635,7 @@ class FirebaseFirestore {
 }
 ```
   
-This file acts as an interface, and can be compiled simply creating all the classes and methods marked with a red underscore.
+This file acts as an interface, and can be prepared simply creating all the classes and methods marked with a red underscore.
 In Android it's possible to hover your mouse over the red underscores and select the *quick fix* :  
 >Create class %%%%%  
 
@@ -659,6 +671,20 @@ In this way we can start or stop the loading even if we change view with the nav
   
 Inside the file `integration_test/app_test.dart` you can find a complete set of tests for the app.
 The integration test works with the use of the integration_test: ^1.0.0 plugin  
+  
+The project contains a file inside test_driver/integrationd_driver.dart
+that loads a custom driver:  
+
+```
+import 'package:integration_test/integration_test_driver.dart';
+Future<void> main() {
+  integrationDriver();
+  return Future.value(true);
+}
+```  
+
+
+
 To launch the tests for android,ios,or wearOs,  
 first launch the emulator (or connect the physical device)
 then run the command  
@@ -667,7 +693,7 @@ then run the command
 The test can also be launched for Web, but you will have to install the chromedriver first, at  
 https://chromedriver.chromium.org/downloads
   
-then run 2 commands:  
+then run 2 commands in 2 different terminals:  
 >chromedriver --port=4444  
 
 >flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
@@ -675,6 +701,29 @@ then run 2 commands:
 *The integration test has a small bug for web. The chrome driver will NOT send you a log for every test, and there's nothing to do about it because it depends on Chrome Developers.  
 But it's a very small bug. Because, if the tests have no errors, you will get  'ALL TESTS PASSED', and if you have an error, you will get the error log for that error in the expected way.*
 
+Let's explain shortly the commands found in the test set.  
+
+command | meaning
+------- | -------
+await tester.pumpWidget(app.FirebaseCrudExampleApp()); | Opens the app and waits for the loading.
+find.textContaining('Ready!') | Can find a specific text in the App
+expect(finder, findsOneWidget) | If this expectation is false, stop testing and throw error
+expect(finder, findsNWidgets(2)) | Same, but with N results accepted (in this case, 2)
+await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300)); | This command drags the mouse or finger up
+await tester.pumpAndSettle(); | Will wait until the UI has finished all animations
+await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false)); | Taps on a widget marked by his semantics
+
+This integration test has 4 tests:  
+1 : checks if we have an error when READING, if the database is empty  
+2 : checks if we have an error when UPDATING, if the database is empty  
+3 : checks if we have an error when DELETING, if the database is empty  
+4 : does those operations:
+  CREATE a record with SANDRO MANZONI as firstname and lastname  
+  READ it to check if the data is correct  
+  UPDATE it with the name ALESSANDRO as firstname  
+  DELETE the record  
+    
+  If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED"
 
 
 # Thanks and apologies  
