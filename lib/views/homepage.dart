@@ -100,12 +100,18 @@ class _HomePageState extends State<HomePage> {
         onPressed: Helper.isLoading() ? null : func,
       );
 
+  void refresh(){
+    if (mounted)
+    setState(() {
+    });
+  }
+
   initState() {
     super.initState();
 
-    Helper.startLoading(this);
+    Helper.startLoading(refresh);
     DatabaseInterface()
-        .init('users', () => Helper.stopLoading(this), startListening);
+        .init('users', () => Helper.stopLoading(refresh), startListening);
   }
 
   dispose() {
@@ -132,7 +138,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _create() async {
-    Helper.startLoading(this);
+    Helper.startLoading(refresh);
     bool exists = await DatabaseInterface().exists('users', 'testUser');
 
     if (exists) {
@@ -148,11 +154,11 @@ class _HomePageState extends State<HomePage> {
           'Success!', 'Record written Successfully', 'Ok!', Colors.black);
     }
 
-    Helper.stopLoading(this);
+    Helper.stopLoading(refresh);
   }
 
   void _read() async {
-    Helper.startLoading(this);
+    Helper.startLoading(refresh);
     Map<String, dynamic> rec =
         await DatabaseInterface().read('users', 'testUser');
 
@@ -164,11 +170,11 @@ class _HomePageState extends State<HomePage> {
       _showMessage('Success!', 'Data found: $record', 'Got it!', Colors.black);
     }
 
-    Helper.stopLoading(this);
+    Helper.stopLoading(refresh);
   }
 
   void _update() async {
-    Helper.startLoading(this);
+    Helper.startLoading(refresh);
 
     DatabaseInterface().update('users', 'testUser', {
       'firstName': 'Alessandro',
@@ -178,7 +184,7 @@ class _HomePageState extends State<HomePage> {
           'Record updated Successfully! The name is changed to Alessandro',
           'Ok, thank you!',
           Colors.black);
-      Helper.stopLoading(this);
+      Helper.stopLoading(refresh);
     }).catchError((e) {
       if ((e.toString().startsWith("[cloud_firestore/not-found]")) ||
           (e.toString().startsWith("FirebaseError: No document to update"))) {
@@ -188,12 +194,12 @@ class _HomePageState extends State<HomePage> {
         _showMessage(
             'ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
       }
-      Helper.stopLoading(this);
+      Helper.stopLoading(refresh);
     });
   }
 
   void _delete() async {
-    Helper.startLoading(this);
+    Helper.startLoading(refresh);
     bool exists = await DatabaseInterface().exists('users', 'testUser');
 
     if (!exists) {
@@ -205,7 +211,7 @@ class _HomePageState extends State<HomePage> {
           'I will miss it!', Colors.black);
     }
 
-    Helper.stopLoading(this);
+    Helper.stopLoading(refresh);
   }
 
   @override

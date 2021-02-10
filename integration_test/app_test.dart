@@ -14,16 +14,14 @@ TO TEST ON ANDROID, WEAROS or IOS ,
 flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart
 */
 
-// ignore: slash_for_doc_comments
-/**
-TO TEST ON FLUTTER WEB (CHROME), INSTALL CHROMEDRIVER at:
-    https://chromedriver.chromium.org/downloads
 
-AND RUN NEXT 2 COMMANDS ON 2 DIFFERENT TERMINALS
-chromedriver --port=4444
-flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
+///TO TEST ON FLUTTER WEB (CHROME), INSTALL CHROMEDRIVER at:
+///    https://chromedriver.chromium.org/downloads
 
- */
+///AND RUN NEXT 2 COMMANDS ON 2 DIFFERENT TERMINALS
+///chromedriver --port=4444
+///flutter drive --driver=test_driver/integration_driver.dart --target=integration_test/app_test.dart -d web-server
+
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

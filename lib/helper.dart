@@ -1,14 +1,11 @@
-import 'package:flutter/cupertino.dart';
 
 class Helper
 {
   static bool _loading=false;
 
-  // ignore: invalid_use_of_protected_member
-  static void startLoading(State s)=> s.setState((){_loading=true;});
+  static void startLoading(callback){ _loading=true; callback();}
 
-  // ignore: invalid_use_of_protected_member
-  static void stopLoading(State s)=> s.setState((){_loading=false;});
+  static void stopLoading (callback){ _loading=false; callback();}
 
   static bool isLoading() => _loading;
 }
