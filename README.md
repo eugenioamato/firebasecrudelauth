@@ -368,8 +368,10 @@ Everything else is working as expected, and we don't need any other management b
 
 # Is the project working on ios?  
 
-The short answer : yes. 
-Adapting it for ios, however, demanded some patience: 
+*Note that you will need a Mac to compile the project for iOs*
+
+The flutter app contained inside our /lib folder is ready to be compiled for iPhone.  
+Adapting it for iOs, however, demanded some patience: 
 The pod system is very odd. To make everything work I had to:  
 
 Create a IOS project inside Firebase console, in a similar way to what I did for the Android app  
@@ -421,7 +423,8 @@ The terminal should then show something like this.
 >Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
 
 In case you don't see any device, you can try  
-`flutter config --enable-web`
+`flutter config --enable-web`  
+and restarting your computer.
 
   
 ## Implementing Flutter-Web
@@ -603,15 +606,13 @@ export var firebaseConfig = {
 
 Sometimes the measurementId may be missing. Don't worry, it is only needed if you requested the Analytics features. However, lacking to insert it will lead to a Warning on your web-page.
 
-# The web app finally works!
+# The web app finally works! 
 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
 
 
-
-
-## Build and deploy to Web
+## Build and deploy to Web as a PWA
 
 *Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
 *So, it's always a good practice to build and test the app in Release mode before deploy.*
@@ -627,6 +628,18 @@ The terminal will print 2 links. One for the relative configuration page, and on
 Your app is now published, and you can share it the public, redirect a domain to it, and brag about it.  
 
 ![fullapp](/screenshots/fullapp.png)
+
+You will also note that the browser will propose you to install this web service.  
+
+![pwa](/screenshots/pwa.png)
+
+What does it mean?  
+The apps made with Flutter are single-page web services that respect the Progressive Web App policies.  
+An agreement between most browsers allow those pages (PWA) to be installed on the user's desktop.
+The icon that will be created will be very similar to an app.  
+Remember, however, that it is NOT an app. Clicking on the icon will open a full page browser tab opening the flutter-web version.
+
+
 
 
 # How can I force browsers to load the new version?
@@ -680,6 +693,14 @@ class FirebaseFirestore {
   static FirebaseFirestore instance;
   collection(String s) {}
 }
+class QuerySnapshot {
+  var docs;
+}
+class QueryDocumentSnapshot {
+var data;
+var id;
+}
+
 ```
   
 This file acts as an interface, and can be prepared simply creating all the classes and methods marked with a red underscore.
