@@ -1,9 +1,9 @@
-# FIREBASE CRUD OPERATIONS on FLUTTER WEB and MOBILE
+# FIREBASE CRUD+E+L OPERATIONS on FLUTTER WEB and MOBILE
 
 
 ![allscreens](/screenshots/allscreens.png)
 
-An example to show crud operations in firebase
+Complete guide for CRUD+E+L firebase operations in Flutter (mobile/web)
 
 ## Specs
 
@@ -140,7 +140,7 @@ The app is now able to compile correctly, showing the app UI.
 
 HOWEVER, the API from Google must be activated before your app can make requests to the Firebase Cloud.  
 
-Trying to click on any of the buttons, or to make any CRUD operation on the database, will show an error:  
+Trying to click on any of the buttons, or to make any CRUD+E+L operation on the database, will show an error:  
 
 
 >W/Firestore(15045): (22.0.2) [WatchStream]: (8f993a7) Stream closed with status: Status{code=PERMISSION_DENIED, description=Cloud Firestore API has not been used in project [YOUR-PROJECT-ID] before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=[YOUR-PROJECT-ID] then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry., cause=null}.
@@ -199,6 +199,17 @@ Having on the same screen your database console you can appreciate the data upda
 ![datainserted](/screenshots/datainserted.png)  
 Note that you can manually make all operations manually on the database.  
 This allows you to control all your data without using any software. You only need a browser (and your credentials).  
+
+# Operations: CRUD + E + L  
+  
+C : Create
+R : Read
+U : Update
+D : Delete
+E : Exists
+L : Listen
+  
+
 ## Initialize Firestore
 
   
@@ -309,7 +320,44 @@ DatabaseInterface().update('users', 'testUser', {
         _showMessage('ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
       }
 ```
+ 
+# Listen operation
+
+Every time the database folder "users" is changed (by us, by another user writing to the same folder, or by the administrator doing operations through the Firebase Console) we want to receive a message, and update the UI. This can be done registering a StreamSubscription when the app starts.  
+This command will return a StreamSubscription, for a stream that contains pairs (Id,Data) . The id is a String that represents the name of the document, and the data is a Map containing key-values of every information contained in the document.
+
+
+```
+listen(String s,callback) {
+     return fsi.collection(s).snapshots().listen((QuerySnapshot qs){
+       callback(qs.docs.map((QueryDocumentSnapshot ss)=> [ss.id,ss.data()]
+       ));
+
+     });
+  }
+```
   
+The callback is a method containing your logic. In this example, we will simply place a String representation of all documents at the bottom of the app.
+
+```
+  void manageEvent(events){
+    _dbMessages.clear();
+    setState(() {
+      _dbMessages.addAll(events);
+    });
+  }
+```
+
+
+It's important to remember that this subscription must be cancel() when we want to stop receiving updates.  
+Canceling the subscription may happen when we logout, or when the app is closed, in his dispose() method.
+
+```
+  dispose() {
+    super.dispose();
+    listener.cancel();
+  }
+```
   
 # Is the project working on WearOs?
   
