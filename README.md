@@ -202,12 +202,12 @@ This allows you to control all your data without using any software. You only ne
 
 # Operations: CRUD + E + L  
   
-C : Create
-R : Read
-U : Update
-D : Delete
-E : Exists
-L : Listen
+C : Create  
+R : Read  
+U : Update  
+D : Delete  
+E : Exists  
+L : Listen  
   
 
 ## Initialize Firestore
@@ -368,8 +368,10 @@ Everything else is working as expected, and we don't need any other management b
 
 # Is the project working on ios?  
 
-The short answer : yes. 
-Adapting it for ios, however, demanded some patience: 
+*Note that you will need a Mac to compile the project for iOs*
+
+The flutter app contained inside our /lib folder is ready to be compiled for iPhone.  
+Adapting it for iOs, however, demanded some patience: 
 The pod system is very odd. To make everything work I had to:  
 
 Create a IOS project inside Firebase console, in a similar way to what I did for the Android app  
@@ -382,7 +384,6 @@ Create a IOS project inside Firebase console, in a similar way to what I did for
 
 ![downloadplist](/screenshots/downloadplist.png)
 
-and exclude the file in .gitignore  
 
 change the CFBundleName in the Info.plist file to match the one inside the plist  
 
@@ -422,7 +423,8 @@ The terminal should then show something like this.
 >Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
 
 In case you don't see any device, you can try  
-`flutter config --enable-web`
+`flutter config --enable-web`  
+and restarting your computer.
 
   
 ## Implementing Flutter-Web
@@ -604,15 +606,13 @@ export var firebaseConfig = {
 
 Sometimes the measurementId may be missing. Don't worry, it is only needed if you requested the Analytics features. However, lacking to insert it will lead to a Warning on your web-page.
 
-# The web app finally works!
+# The web app finally works! 
 
 Run the project with the green PLAY button on Android Studio, or with the terminal command:  
 >flutter run -d chrome
 
 
-
-
-## Build and deploy to Web
+## Build and deploy to Web as a PWA
 
 *Remember that the version uploaded to your hosting is the RELEASE version, not the debug or profile ones.*  
 *So, it's always a good practice to build and test the app in Release mode before deploy.*
@@ -628,6 +628,18 @@ The terminal will print 2 links. One for the relative configuration page, and on
 Your app is now published, and you can share it the public, redirect a domain to it, and brag about it.  
 
 ![fullapp](/screenshots/fullapp.png)
+
+You will also note that the browser will propose you to install this web service.  
+
+![pwa](/screenshots/pwa.png)
+
+What does it mean?  
+The apps made with Flutter are single-page web services that respect the Progressive Web App policies.  
+An agreement between most browsers allow those pages (PWA) to be installed on the user's desktop.
+The icon that will be created will be very similar to an app.  
+Remember, however, that it is NOT an app. Clicking on the icon will open a full page browser tab opening the flutter-web version.
+
+
 
 
 # How can I force browsers to load the new version?
@@ -681,6 +693,14 @@ class FirebaseFirestore {
   static FirebaseFirestore instance;
   collection(String s) {}
 }
+class QuerySnapshot {
+  var docs;
+}
+class QueryDocumentSnapshot {
+var data;
+var id;
+}
+
 ```
   
 This file acts as an interface, and can be prepared simply creating all the classes and methods marked with a red underscore.
@@ -699,19 +719,18 @@ Every time the user is waiting for an asynchronous task, we have to start immedi
 The naïve solution to this problem is to create a bool named loading, to check if the bool is true or false every time we build our view, and to call a setState every time we start or finish a loading.  
 A cleaner way is to call two methods that make the loading start or stop.  
 A more clean way, in my opinion, is to create a helper class that cares about it.  
-Calling the method is done as this:  
+Calling the method is made by passing a refresh method in the properties:  
 
->Helper.startLoading(this);  
+>Helper.startLoading(refresh);  
   
->Helper.stopLoading(this);  
+>Helper.stopLoading(refresh);  
   
-When we write `this` in a View, we are actually sending the State of the widget. It is used as:  
-
->static void startLoading(State<HomePage> s)=> s.setState((){_loading=true;});  
+>static void startLoading(callback){ _loading=true; callback();}
   
->static void stopLoading(State<HomePage> s)=> s.setState((){_loading=false;});  
+>static void startLoading(callback){ _loading=false; callback();}
   
-In this way we can start or stop the loading even if we change view with the navigator, and we can use these methods also during the integration test.
+In this way we can start or stop the loading even if we change view with the navigator, and we can use these methods also during the integration test.  
+The callback is a simple method that checks if the state is still mounted (it will not be mounted if the view has been removed).  
   
   
 
@@ -730,7 +749,6 @@ Future<void> main() {
   return Future.value(true);
 }
 ```  
-
 
 
 To launch the tests for android,ios,or wearOs,  
@@ -757,7 +775,7 @@ await tester.pumpWidget(app.FirebaseCrudExampleApp()); | Opens the app and waits
 find.textContaining('Ready!') | Can find a specific text in the App
 expect(finder, findsOneWidget) | If this expectation is false, stop testing and throw error
 expect(finder, findsNWidgets(2)) | Same, but with N results accepted (in this case, 2)
-await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300)); | This command drags the mouse or finger up
+await tester.ensureVisible(formCaption); | Moves the scroll until the widget is visible
 await tester.pumpAndSettle(); | Will wait until the UI has finished all animations
 await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false)); | Taps on a widget marked by his semantics
 
@@ -765,13 +783,14 @@ This integration test has 4 tests:
 1 : checks if we have an error when READING, if the database is empty  
 2 : checks if we have an error when UPDATING, if the database is empty  
 3 : checks if we have an error when DELETING, if the database is empty  
-4 : does those operations:
+4 : does all those operations:
   CREATE a record with SANDRO MANZONI as firstname and lastname  
   READ it to check if the data is correct  
   UPDATE it with the name ALESSANDRO as firstname  
+  (This will expect 2 "alessandro" to be shown, thus testing also the LISTEN
   DELETE the record  
     
-  If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED"
+  If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED."
 
 
 # Thanks and apologies  
