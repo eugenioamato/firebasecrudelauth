@@ -1,19 +1,27 @@
+import 'dart:async';
+
 import 'package:firebase/firebase.dart';
 import 'package:firebase/firestore.dart';
 
 
 class DatabaseInterface {
   static Firestore fsi;
+  static StreamSubscription<dynamic> listener;
 
   /// Does nothing in web. The app is already initialized in index.html
   initializeApp() async {
   }
 
   /// Retrieves the database instance
-  Future<void> init(Function() stopLoading) async {
-
+  Future<void> init(folder,Function() stopLoading, Function() startListening) async {
     fsi = firestore();
+    await startListening();
     stopLoading();
+  }
+
+  disposeApp()
+  {
+    listener.cancel();
   }
 
   /// Returns true if the Collection s, Document t is actually present in the DB
@@ -51,6 +59,14 @@ class DatabaseInterface {
   delete(String s, String t) {
     fsi.collection(s).doc(t).delete();
 
+  }
+
+  listen(String s,callback) {
+    return fsi.collection(s).onSnapshot.listen((QuerySnapshot qs){
+      callback(qs.docs.map((DocumentSnapshot ss)=>[ss.id,ss.data()]
+      ));
+
+    });
   }
 
 }

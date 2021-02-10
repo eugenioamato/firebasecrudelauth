@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'cloudstub.dart'
 if (dart.library.io)
@@ -5,17 +7,18 @@ if (dart.library.io)
 
 class DatabaseInterface {
   static FirebaseFirestore fsi;
-
    /// Creates the Firebase connection, only needed in mobile version.
    /// (The Web version is connected in the index.html file)
   initializeApp() async {
     await Firebase.initializeApp();
 
   }
+
   /// Retrieves the database instance
-  Future<void> init(Function() stopLoading) async {
+  Future<void> init(folder,Function() stopLoading, Function() startListening) async {
     await initializeApp();
     fsi= FirebaseFirestore.instance;
+    await startListening();
     stopLoading();
   }
 
@@ -56,5 +59,16 @@ class DatabaseInterface {
 
   }
 
+   StreamSubscription listen(String s,callback) {
+     return fsi.collection(s).snapshots().listen((QuerySnapshot qs){
+       callback(qs.docs.map((QueryDocumentSnapshot ss)=> [ss.id,ss.data()]
+       ));
+
+     });
+  }
+
 }
+
+
+
 

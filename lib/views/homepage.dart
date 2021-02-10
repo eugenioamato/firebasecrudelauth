@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -15,6 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   ScrollController scrollController = ScrollController();
+  StreamSubscription listener;
+
   Key formKey = Key('form');
 
   double step = 0.0;
@@ -22,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   String formCaption = 'Ready!';
   Color formColor = Colors.black;
   bool formVisible = true;
+
+  List _dbMessages = [];
 
   List<Widget> get pageItems => [
         Image.asset(
@@ -41,8 +46,12 @@ class _HomePageState extends State<HomePage> {
           onVisibilityChanged: (VisibilityInfo info) {
             formVisible = info.visibleFraction == 1.0;
           },
-          child: AutoSizeText(formCaption,
-              maxLines: 2, style: TextStyle(color: formColor)),
+          child: AutoSizeText(
+            formCaption,
+            maxLines: 2,
+            style: TextStyle(color: formColor),
+            semanticsLabel: 'formCaption',
+          ),
         )),
         SizedBox(
           height: vstep,
@@ -63,12 +72,17 @@ class _HomePageState extends State<HomePage> {
         SizedBox(
           height: vstep,
         ),
+        AutoSizeText(dbMessages),
         SizedBox(
           height: vstep,
-        )
+        ),
       ];
 
+  String get dbMessages => _dbMessages.toString();
 
+  Future<void> startListening() async {
+    listener = DatabaseInterface().listen('users', manageEvent);
+  }
 
   actionButton(text, icon, func) => RaisedButton(
         color: Colors.amberAccent,
@@ -90,7 +104,20 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     Helper.startLoading(this);
-    DatabaseInterface().init(() => Helper.stopLoading(this));
+    DatabaseInterface()
+        .init('users', () => Helper.stopLoading(this), startListening);
+  }
+
+  dispose() {
+    super.dispose();
+    listener.cancel();
+  }
+
+  void manageEvent(events) {
+    _dbMessages.clear();
+    setState(() {
+      _dbMessages.addAll(events);
+    });
   }
 
   Future<void> _showMessage(String messageTitle, String message,
@@ -213,7 +240,6 @@ class _HomePageState extends State<HomePage> {
             body: Padding(
               padding: EdgeInsets.only(left: step, right: step),
               child: ListView.builder(
-                  key: Key('scroller'),
                   controller: scrollController,
                   itemCount: pageItems.length,
                   itemBuilder: (context, index) => pageItems[index]),

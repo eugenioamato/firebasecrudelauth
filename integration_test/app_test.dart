@@ -1,12 +1,12 @@
+
 import 'package:firebase_crud_example/helper.dart';
-import 'package:flutter/foundation.dart' show Key;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:firebase_crud_example/app.dart' as app;
 
 import 'package:firebase_crud_example/services/database_interface.dart'
-if (dart.library.html)
- 'package:firebase_crud_example/services/web_database_interface.dart';
+    if (dart.library.html) 'package:firebase_crud_example/services/web_database_interface.dart';
 
 /**
 TO TEST ON ANDROID, WEAROS or IOS ,
@@ -28,147 +28,156 @@ flutter drive --driver=test_driver/integration_driver.dart --target=integration_
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() async{
-    await DatabaseInterface().init(()=>Helper.stopLoading);
+  final readButton =
+      find.widgetWithText(RaisedButton, 'Read', skipOffstage: false);
+  final deleteButton =
+      find.widgetWithText(RaisedButton, 'Delete', skipOffstage: false);
+  final updateButton =
+      find.widgetWithText(RaisedButton, 'Update', skipOffstage: false);
+  final createButton =
+      find.widgetWithText(RaisedButton, 'Create', skipOffstage: false);
+
+  setUpAll(() async {
+    await DatabaseInterface()
+        .init('users', () => Helper.stopLoading, () async {});
   });
 
-  testWidgets('Pressing delete button '
-              'gives error when no record is found',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(app.FirebaseCrudExampleApp());
+  testWidgets(
+      'Pressing delete button '
+      'gives error when no record is found', (WidgetTester tester) async {
+    await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
-        expect(
-          find.textContaining('Ready!'),
-          findsOneWidget,
-        );
+    expect(
+      find.textContaining('Ready!'),
+      findsOneWidget,
+    );
 
-        await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-        await tester.pumpAndSettle();
+    await tester.ensureVisible(deleteButton);
+    expect(
+      deleteButton,
+      findsOneWidget,
+    );
 
-        expect(
-          find.textContaining('Delete',skipOffstage: false),
-          findsOneWidget,
-        );
+    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-        await tester.tap(find.bySemanticsLabel('Delete',skipOffstage: false));
-        await tester.pumpAndSettle();
+    var formCaption = find.bySemanticsLabel('formCaption', skipOffstage: false);
+    await tester.ensureVisible(formCaption);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-        expect(
-          find.textContaining('ERROR',skipOffstage: false),
-          findsOneWidget,
-        );
-      }
-  );
+    expect(
+      find.textContaining('ERROR'),
+      findsOneWidget,
+    );
+  });
 
-  testWidgets('Pressing update button '
-              'gives error when no record is found',
-          (WidgetTester tester) async {
+  testWidgets(
+      'Pressing update button '
+      'gives error when no record is found', (WidgetTester tester) async {
+    await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
+    expect(
+      find.textContaining('Ready!'),
+      findsOneWidget,
+    );
 
-            await tester.pumpWidget(app.FirebaseCrudExampleApp());
+    await tester.ensureVisible(updateButton);
+    expect(
+      updateButton,
+      findsOneWidget,
+    );
 
-            expect(
-          find.textContaining('Ready!'),
-          findsOneWidget,
-        );
+    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(updateButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-        await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-        await tester.pumpAndSettle();
+    var formCaption = find.bySemanticsLabel('formCaption', skipOffstage: false);
+    await tester.ensureVisible(formCaption);
 
-        await tester.tap(find.bySemanticsLabel('Update',skipOffstage: false));
-        await tester.pumpAndSettle();
+    expect(
+      find.textContaining('ERROR'),
+      findsOneWidget,
+    );
+  });
 
-        expect(
-          find.textContaining('ERROR',skipOffstage: false),
-          findsOneWidget,
-        );
-      }
-  );
+  testWidgets(
+      'Pressing read button '
+      'gives error when no record is found', (WidgetTester tester) async {
+    await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
+    expect(
+      find.textContaining('Ready!'),
+      findsOneWidget,
+    );
 
-  testWidgets('Pressing read button '
-              'gives error when no record is found',
-          (WidgetTester tester) async {
+    await tester.ensureVisible(readButton);
+    expect(
+      readButton,
+      findsOneWidget,
+    );
 
+    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(readButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-            await tester.pumpWidget(app.FirebaseCrudExampleApp());
+    var formCaption = find.bySemanticsLabel('formCaption', skipOffstage: false);
+    await tester.ensureVisible(formCaption);
 
-            expect(
-          find.textContaining('Ready!'),
-          findsOneWidget,
-        );
-        await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-        await tester.pumpAndSettle();
+    expect(
+      find.textContaining('ERROR'),
+      findsOneWidget,
+    );
+  });
 
-        await tester.tap(find.bySemanticsLabel('Read',skipOffstage: false));
-        await tester.pumpAndSettle();
+  testWidgets(
+      'creating will show a success, '
+      'then updating will show a success '
+      'then the value will be Alessandro '
+      'then deleting will show a success ', (WidgetTester tester) async {
+    await tester.pumpWidget(app.FirebaseCrudExampleApp());
 
-        expect(
-          find.textContaining('ERROR',skipOffstage: false),
-          findsOneWidget,
-        );
-      }
-  );
+    expect(
+      find.textContaining('Ready!'),
+      findsOneWidget,
+    );
 
-  testWidgets('creating will show a success, '
-              'then updating will show a success '
-              'then the value will be Alessandro '
-              'then deleting will show a success ',
-          (WidgetTester tester) async {
+    await tester.ensureVisible(createButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(createButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-            await tester.pumpWidget(app.FirebaseCrudExampleApp());
+    expect(
+      find.textContaining('Success'),
+      findsOneWidget,
+    );
 
+    await tester.ensureVisible(updateButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
+    await tester.tap(updateButton);
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-            expect(
-          find.textContaining('Ready!'),
-          findsOneWidget,
-        );
+    var formCaption = find.bySemanticsLabel('formCaption', skipOffstage: false);
+    await tester.ensureVisible(formCaption);
 
-            await tester.pumpAndSettle();
+    expect(find.textContaining('Alessandro',skipOffstage: false), findsNWidgets(2));
 
-        await tester.tap(find.bySemanticsLabel('Create'));
-        await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Success',skipOffstage: false),
+      findsOneWidget,
+    );
 
-        expect(
-          find.textContaining('Success'),
-          findsOneWidget,
-        );
+    await tester.ensureVisible(deleteButton);
 
-            await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-            await tester.pumpAndSettle();
+    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(deleteButton);
 
+    await tester.pumpAndSettle(Duration(seconds: 2));
 
-        await tester.tap(find.bySemanticsLabel('Update'));
-        await tester.pumpAndSettle();
-
-        expect(find.textContaining('Alessandro'),
-            findsOneWidget);
-
-        expect(
-          find.textContaining('Success'),
-          findsOneWidget,
-        );
-
-
-            await tester.drag(find.byKey(Key('scroller')), const Offset(0.0, -300));
-            await tester.pumpAndSettle();
-
-
-
-
-        await tester.tap(find.bySemanticsLabel('Delete'));
-        await tester.pumpAndSettle();
-
-        expect(
-          find.textContaining('Success'),
-          findsOneWidget,
-        );
-      }
-  );
-
-
-
-
+    expect(
+      find.textContaining('Success'),
+      findsOneWidget,
+    );
+  });
 }
-
