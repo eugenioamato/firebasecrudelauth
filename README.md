@@ -787,7 +787,7 @@ This integration test has 4 tests:
   CREATE a record with SANDRO MANZONI as firstname and lastname  
   READ it to check if the data is correct  
   UPDATE it with the name ALESSANDRO as firstname  
-  (This will expect 2 "alessandro" to be shown, thus testing also the LISTEN
+  (This will expect 2 "alessandro" to be shown, thus testing also the LISTEN  
   DELETE the record  
     
   If no errors are found, you will be able to see the satisfying message "ALL TESTS PASSED."
@@ -796,7 +796,7 @@ This integration test has 4 tests:
 # Thanks and apologies  
 
 Please contact me for any typo/error/mistake that you encounter in this Repository. 
-Pull requests are welcome.  
+  
 
 Make contact with me at  
 
