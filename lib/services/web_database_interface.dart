@@ -4,12 +4,14 @@ import 'package:firebase/firebase.dart';
 import 'package:firebase/firestore.dart';
 
 
+
 class DatabaseInterface {
   static Firestore fsi;
   static StreamSubscription<dynamic> listener;
 
   /// Does nothing in web. The app is already initialized in index.html
   initializeApp() async {
+
   }
 
   /// Retrieves the database instance
@@ -17,6 +19,7 @@ class DatabaseInterface {
     fsi = firestore();
     await startListening();
     stopLoading();
+
   }
 
   disposeApp()
