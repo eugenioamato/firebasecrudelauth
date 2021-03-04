@@ -9,10 +9,11 @@ Complete guide for CRUD+E+L firebase operations in Flutter (mobile/web)
 
 This project was created with the following specs:
 >#android studio 4.1.2   
->#compiled with Flutter 1.25.0-8.2.pre • channel beta  
->#Framework • revision b0a2299859  
->#Engine • revision 92ae191c17  
->#Tools • Dart 2.12.0 (build 2.12.0-133.2.beta)  
+>Flutter 2.0.0 • channel stable • https://github.com/flutter/flutter.git
+>Framework • revision 60bd88df91 (2 hours ago) • 2021-03-03 09:13:17 -0800
+>Engine • revision 40441def69
+>Tools • Dart 2.12.0
+
   
   
 
@@ -209,18 +210,21 @@ D : Delete
 E : Exists  
 L : Listen  
   
+All the operations are sorrounded by a try/catch clause to verify connectivity.  
+Indeed, the firebase plugins don't send a catchable error when the connectivity is lost, because the offline database is actually used in that case.   
+The listener, when no connectivity is found, will return the last state of the listened folder.  
 
 ## Initialize Firestore
 
   
-In the mobile version, the code is launched in the first `initState` of the first view, through the `cloud_firestore: 0.16.0` plugin
+In the mobile version, the code is launched in the first `initState` of the first view, through the `cloud_firestore: 1.0.0` plugin
 ``` 
 await initializeApp();
 fsi= FirebaseFirestore.instance;
 ```
   
 
-In the web version, the Initialization is made inside the file `index.html` , and the instance is retrieved through `firebase/firestore.dart`, in the plugin `firebase: 8.0`   
+In the web version, the Initialization is made inside the file `index.html` , and the instance is retrieved through `firebase/firestore.dart`, in the plugin `firebase: 9.0`   
 ```
 fsi = firestore();
 ```
@@ -337,10 +341,33 @@ listen(String s,callback) {
   }
 ```
   
-The callback is a method containing your logic. In this example, we will simply place a String representation of all documents at the bottom of the app.
+The callback is a method containing your logic. In this example, we will simply place a String representation of all documents at the bottom of the app.  
+In the event of an empty answer from the listener, we show a SnackBar with an error. We expect the user to exit the app and retry later.  
+If the connectivity is gained in a second moment, we dismiss the SnackBar.  
 
 ```
-  void manageEvent(events){
+void manageEvent(events) {
+    if (waitingForFirstConnection)
+      {
+        if (events.toString()=='()')
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+             errorSnackBar
+
+          );
+          errorInConnectivity=true;
+        }
+        else
+        {
+          if (errorInConnectivity)
+            {
+              errorInConnectivity=false;
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            }
+          waitingForFirstConnection = false;
+          Helper.stopLoading(refresh);
+        }
+      }
     _dbMessages.clear();
     setState(() {
       _dbMessages.addAll(events);
@@ -407,25 +434,6 @@ The result is faster and smoother than the Android version.
 
 
 # Let's try Flutter-Web
-
-### Switch to Beta channel for Web production
-To switch to the beta channel, use the next 2 commands in a terminal:  
-`flutter channel beta`  
-`flutter upgrade`  
-  
-Check then your config with :  
-`flutter devices`  
-
-The terminal should then show something like this.  
->2 connected device:  
->  
->Web Server • web-server • web-javascript • Flutter Tools  
->Chrome     • chrome     • web-javascript • Google Chrome 81.0.4044.129  
-
-In case you don't see any device, you can try  
-`flutter config --enable-web`  
-and restarting your computer.
-
   
 ## Implementing Flutter-Web
   
@@ -433,7 +441,7 @@ and restarting your computer.
 So, the only way I found to make it work properly on Flutter-Web is to remove the cloud_firestore, and use the same commands found inside the plugin Firebase.
 This forces us to comment out the plugin in pubspec.yaml before working with web plugins.  *
 Inside pubspec.yaml, comment out this line adding an '#' before it:  
-`  #cloud_firestore: ^0.16.0`
+`  #cloud_firestore: ^1.0.0`
   
 and run
 `flutter pub get`
@@ -660,11 +668,14 @@ Doing so, (BEFORE `flutter build web`) you can be 100% sure that the client is n
 
 # Conditional imports
 
-In the main view (HomePage) you can see this strange import:  
+In the main view (homepage.dart) you can see this strange import:  
 
 ```
-import '../services/database_interface.dart' if (dart.library.html)
-  '../services/web_database_interface.dart';
+import '../services/db_interface_stub.dart'
+  if (dart.library.io)
+  '../services/database_interface.dart'
+  if (dart.library.html)
+       '../services/web_database_interface.dart';
 ```  
   
 The compiler will understand that we are compiling the project to Web because he will find the html library.  
@@ -675,16 +686,19 @@ The Android Studio IDE is unable to understand that we are going to work only fo
   
 ![stuberrors](/screenshots/stuberrors.png)
   
-Why is that? In the file `database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
+Why is that? In the file `web_database_interface.dart` we are still importing the cloud_firestore plugin, and even if we know that that file will not be compiled, the IDE is complaining for missing files and unknown methods.  
 
   
 Very annoying isn't it?
 Also because the project can be compiled and run without any problem.  
 So I had the idea to insert another conditional import inside the database_interface.dart  
 ```
-import 'cloudstub.dart'
+
+import 'firestore_stub.dart'
 if (dart.library.io)
-'package:cloud_firestore/cloud_firestore.dart';
+'package:cloud_firestore/cloud_firestore.dart'
+;
+
 ```  
 
 and a lovely fake file (that will never be compiled) that I call a *stub*  
@@ -710,6 +724,22 @@ In Android it's possible to hover your mouse over the red underscores and select
 or
 
 >Create method %%%%%
+
+
+A similar thing is done inside the database_interface.dart, where the classes span in 2 different classes.
+  
+We hence need 2 more stubs.  
+
+```
+import 'firestore_stub.dart'
+if (dart.library.html)
+  'package:firebase/firebase.dart';
+
+import 'firebase_stub.dart'
+  if (dart.library.html)
+ 'package:firebase/firestore.dart';
+
+```
   
 Voila! The IDE is not complaining anymore.
 

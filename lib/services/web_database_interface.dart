@@ -1,8 +1,12 @@
 import 'dart:async';
 
-import 'package:firebase/firebase.dart';
-import 'package:firebase/firestore.dart';
+import 'firestore_stub.dart'
+if (dart.library.html)
+  'package:firebase/firebase.dart';
 
+import 'firebase_stub.dart'
+  if (dart.library.html)
+ 'package:firebase/firestore.dart';
 
 
 class DatabaseInterface {
@@ -15,11 +19,9 @@ class DatabaseInterface {
   }
 
   /// Retrieves the database instance
-  Future<void> init(folder,Function() stopLoading, Function() startListening) async {
+  Future<void> init(folder, Function() startListening) async {
     fsi = firestore();
     await startListening();
-    stopLoading();
-
   }
 
   disposeApp()
@@ -65,11 +67,15 @@ class DatabaseInterface {
   }
 
   listen(String s,callback) {
-    return fsi.collection(s).onSnapshot.listen((QuerySnapshot qs){
+    return
+    fsi.collection(s).onSnapshot.listen((QuerySnapshot qs){
       callback(qs.docs.map((DocumentSnapshot ss)=>[ss.id,ss.data()]
       ));
 
     });
   }
 
+
+
 }
+

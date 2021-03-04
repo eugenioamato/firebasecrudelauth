@@ -1,5 +1,4 @@
 
-import 'package:firebase_crud_example/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -27,17 +26,17 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final readButton =
-      find.widgetWithText(RaisedButton, 'Read', skipOffstage: false);
+      find.widgetWithText(ElevatedButton, 'Read', skipOffstage: false);
   final deleteButton =
-      find.widgetWithText(RaisedButton, 'Delete', skipOffstage: false);
+      find.widgetWithText(ElevatedButton, 'Delete', skipOffstage: false);
   final updateButton =
-      find.widgetWithText(RaisedButton, 'Update', skipOffstage: false);
+      find.widgetWithText(ElevatedButton, 'Update', skipOffstage: false);
   final createButton =
-      find.widgetWithText(RaisedButton, 'Create', skipOffstage: false);
+      find.widgetWithText(ElevatedButton, 'Create', skipOffstage: false);
 
   setUpAll(() async {
     await DatabaseInterface()
-        .init('users', () => Helper.stopLoading, () async {});
+        .init('users', () =>() async {});
   });
 
   testWidgets(

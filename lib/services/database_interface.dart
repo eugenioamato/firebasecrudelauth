@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'cloudstub.dart'
+
+
+import 'firestore_stub.dart'
 if (dart.library.io)
-'package:cloud_firestore/cloud_firestore.dart';
+'package:cloud_firestore/cloud_firestore.dart'
+;
 
 class DatabaseInterface {
   static FirebaseFirestore fsi;
@@ -12,15 +15,13 @@ class DatabaseInterface {
    /// (The Web version is connected in the index.html file)
   initializeApp() async {
     await Firebase.initializeApp();
-
   }
 
   /// Retrieves the database instance
-  Future<void> init(folder,Function() stopLoading, Function() startListening) async {
+  Future<void> init(folder, Function() startListening) async {
     await initializeApp();
     fsi= FirebaseFirestore.instance;
     await startListening();
-    stopLoading();
   }
 
   /// Returns true if the Collection s, Document t is actually present in the DB

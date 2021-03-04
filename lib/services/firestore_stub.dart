@@ -9,4 +9,3 @@ class QueryDocumentSnapshot {
 var data;
 var id;
 }
-

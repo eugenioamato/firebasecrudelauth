@@ -6,8 +6,13 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import '../helper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import '../services/database_interface.dart'
-    if (dart.library.html) '../services/web_database_interface.dart';
+
+
+import '../services/db_interface_stub.dart'
+  if (dart.library.io)
+  '../services/database_interface.dart'
+  if (dart.library.html)
+       '../services/web_database_interface.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   String formCaption = 'Ready!';
   Color formColor = Colors.black;
   bool formVisible = true;
+  bool waitingForFirstConnection=true;
 
   List _dbMessages = [];
 
@@ -84,8 +90,13 @@ class _HomePageState extends State<HomePage> {
     listener = DatabaseInterface().listen('users', manageEvent);
   }
 
-  actionButton(text, icon, func) => RaisedButton(
-        color: Colors.amberAccent,
+  actionButton(text, icon, func) => ElevatedButton(
+    style
+        : ButtonStyle(
+        backgroundColor:MaterialStateProperty.all<Color>(Colors.amberAccent),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+
+    ),
         child: Flex(direction: Axis.horizontal, children: [
           Expanded(child: Icon(icon)),
           Expanded(
@@ -111,7 +122,7 @@ class _HomePageState extends State<HomePage> {
 
     Helper.startLoading(refresh);
     DatabaseInterface()
-        .init('users', () => Helper.stopLoading(refresh), startListening);
+        .init('users', startListening);
   }
 
   dispose() {
@@ -119,7 +130,35 @@ class _HomePageState extends State<HomePage> {
     listener.cancel();
   }
 
+  void showErrorSnackbar(bool short) {
+    SnackBar errorSnackBar = SnackBar(
+      content: Text('No Internet connection!'),
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: short?5:5000),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+  }
+  bool errorInConnectivity=false;
+
   void manageEvent(events) {
+    if (waitingForFirstConnection)
+      {
+        if (events.toString()=='()')
+        {
+          showErrorSnackbar(false);
+          errorInConnectivity=true;
+        }
+        else
+        {
+          if (errorInConnectivity)
+            {
+              errorInConnectivity=false;
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            }
+          waitingForFirstConnection = false;
+          Helper.stopLoading(refresh);
+        }
+      }
     _dbMessages.clear();
     setState(() {
       _dbMessages.addAll(events);
@@ -139,8 +178,8 @@ class _HomePageState extends State<HomePage> {
 
   void _create() async {
     Helper.startLoading(refresh);
-    bool exists = await DatabaseInterface().exists('users', 'testUser');
-
+    try {
+      bool exists = await DatabaseInterface().exists('users', 'testUser');
     if (exists) {
       _showMessage('ERROR', 'ERROR ON CREATE: THE RECORD ALREADY EXISTS',
           'Awww...', Colors.red);
@@ -154,11 +193,25 @@ class _HomePageState extends State<HomePage> {
           'Success!', 'Record written Successfully', 'Ok!', Colors.black);
     }
 
+    }
+    catch(e)
+    {
+      if (e.toString().startsWith('[cloud_firestore/unavailable]'))
+        {
+          errorInConnectivity=true;
+          waitingForFirstConnection=true;
+          showErrorSnackbar(true);
+
+        }
+    }
+
     Helper.stopLoading(refresh);
   }
 
   void _read() async {
     Helper.startLoading(refresh);
+    try
+    {
     Map<String, dynamic> rec =
         await DatabaseInterface().read('users', 'testUser');
 
@@ -170,36 +223,62 @@ class _HomePageState extends State<HomePage> {
       _showMessage('Success!', 'Data found: $record', 'Got it!', Colors.black);
     }
 
+    }
+    catch(e)
+    {
+      if (e.toString().startsWith('[cloud_firestore/unavailable]'))
+      {
+        errorInConnectivity=true;
+        waitingForFirstConnection=true;
+        showErrorSnackbar(true);}
+    }
     Helper.stopLoading(refresh);
   }
 
   void _update() async {
     Helper.startLoading(refresh);
 
-    DatabaseInterface().update('users', 'testUser', {
-      'firstName': 'Alessandro',
-    }).then((_) {
-      _showMessage(
-          'Success!',
-          'Record updated Successfully! The name is changed to Alessandro',
-          'Ok, thank you!',
-          Colors.black);
-      Helper.stopLoading(refresh);
-    }).catchError((e) {
-      if ((e.toString().startsWith("[cloud_firestore/not-found]")) ||
-          (e.toString().startsWith("FirebaseError: No document to update"))) {
-        _showMessage('ERROR', 'ERROR ON UPDATE, THE RECORD WAS NOT FOUND',
-            'Cannot update? WTF!', Colors.red);
-      } else {
+    try {
+      DatabaseInterface().update('users', 'testUser', {
+        'firstName': 'Alessandro',
+      }).then((_) {
+        print("result _ is $_");
+
         _showMessage(
-            'ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
-      }
-      Helper.stopLoading(refresh);
-    });
+            'Success!',
+            'Record updated Successfully! The name is changed to Alessandro',
+            'Ok, thank you!',
+            Colors.black);
+        Helper.stopLoading(refresh);
+      }).catchError((e) {
+        if ((e.toString().startsWith("[cloud_firestore/not-found]")) ||
+            (e.toString().startsWith("FirebaseError: No document to update"))) {
+          _showMessage('ERROR', 'ERROR ON UPDATE, THE RECORD WAS NOT FOUND',
+              'Cannot update? WTF!', Colors.red);
+        } else {
+          _showMessage(
+              'ERROR', 'Error on update:${e.toString()}', 'Ok', Colors.red);
+        }
+        Helper.stopLoading(refresh);
+      });
+
+  }
+  catch(e)
+  {
+  if (e.toString().startsWith('[cloud_firestore/unavailable]'))
+  {
+  errorInConnectivity=true;
+  waitingForFirstConnection=true;
+  showErrorSnackbar(true);
+  Helper.stopLoading(refresh);
+  }
+  }
   }
 
   void _delete() async {
     Helper.startLoading(refresh);
+    try
+    {
     bool exists = await DatabaseInterface().exists('users', 'testUser');
 
     if (!exists) {
@@ -211,6 +290,17 @@ class _HomePageState extends State<HomePage> {
           'I will miss it!', Colors.black);
     }
 
+
+    }
+    catch(e)
+    {
+      if (e.toString().startsWith('[cloud_firestore/unavailable]'))
+      {
+        errorInConnectivity=true;
+        waitingForFirstConnection=true;
+        showErrorSnackbar(true);
+      }
+    }
     Helper.stopLoading(refresh);
   }
 
@@ -253,4 +343,5 @@ class _HomePageState extends State<HomePage> {
           ),
         ));
   }
+
 }
