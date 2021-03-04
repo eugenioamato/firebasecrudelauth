@@ -9,10 +9,10 @@ Complete guide for CRUD+E+L firebase operations in Flutter (mobile/web)
 
 This project was created with the following specs:
 >#android studio 4.1.2   
->Flutter 2.0.0 • channel stable • https://github.com/flutter/flutter.git
->Framework • revision 60bd88df91 (2 hours ago) • 2021-03-03 09:13:17 -0800
->Engine • revision 40441def69
->Tools • Dart 2.12.0
+>Flutter 2.0.0 • channel stable • https://github.com/flutter/flutter.git  
+>Framework • revision 60bd88df91 (2 hours ago) • 2021-03-03 09:13:17 -0800  
+>Engine • revision 40441def69  
+>Tools • Dart 2.12.0  
 
   
   
@@ -510,12 +510,9 @@ to import the configuration and initialize the app, with the analytics (only if 
   
 You will also need in your BODY section the following imports:  
   
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>  
-
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>  
-
-Insert also the analytics library if you enabled it in the previous steps.  
->  <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-analytics.js"></script>  
+>  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>  
+>  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-firestore.js"></script>  
+>  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>  
 
 Remember that, in case your app requires other libraries, you can find them on this website:  
 >https://firebase.google.com/docs/web/setup#available-libraries  
