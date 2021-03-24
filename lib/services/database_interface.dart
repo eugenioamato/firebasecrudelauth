@@ -9,7 +9,7 @@ if (dart.library.io)
 ;
 
 class DatabaseInterface {
-  static FirebaseFirestore fsi;
+  static late FirebaseFirestore fsi;
 
    /// Creates the Firebase connection, only needed in mobile version.
    /// (The Web version is connected in the index.html file)

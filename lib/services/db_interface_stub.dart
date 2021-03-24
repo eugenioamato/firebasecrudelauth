@@ -12,7 +12,7 @@ class DatabaseInterface
 
   update(String s, String t, Map<String, String> map) {}
 
-  StreamSubscription listen(String s, void Function(dynamic events) manageEvent) {
+  StreamSubscription? listen(String s, void Function(dynamic events) manageEvent) {
     return null;
   }
 

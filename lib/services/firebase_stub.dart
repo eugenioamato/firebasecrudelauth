@@ -1,4 +1,4 @@
-Firestore firestore() { return null;}
+Firestore? firestore() { return null;}
 
 class Firestore {
   collection(String s) {}
