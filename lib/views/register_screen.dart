@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../res/custom_colors.dart';
 import '../widgets/app_bar_title.dart';
 import '../widgets/register_form.dart';
 

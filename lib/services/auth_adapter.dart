@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'auth.dart';
@@ -113,28 +113,32 @@ class AuthServiceAdapter implements AuthService{
   }
 
   static Future<void> signOut() async {
+    if ((await _googleSignInAccount!.authentication).accessToken!=null)
+      _googleSignIn!.disconnect();
+
     await _firebaseAuth.signOut();
   }
 
-  @override
+  static GoogleSignIn? _googleSignIn;
+  static GoogleSignInAccount? _googleSignInAccount;
+
+
   static Future<User?> signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    // Trigger the authentication flow
+    _googleSignIn= GoogleSignIn();
+    _googleSignInAccount = await _googleSignIn!.signIn();
 
-    if (googleUser != null) {
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      if (googleAuth.accessToken != null && googleAuth.idToken != null) {
-        final  user = await _firebaseAuth.signInWithCredential(GoogleAuthProvider.credential(
-          idToken: googleAuth.idToken,
-          accessToken: googleAuth.accessToken,
-        ));
-        return user.user;
-      } else {
-        throw PlatformException(code: 'ERROR_MISSING_GOOGLE_AUTH_TOKEN', message: 'Missing Google Auth Token');
-      }
-    } else {
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = await _googleSignInAccount!.authentication;
 
-      throw PlatformException(code: 'ERROR_ABORTED_BY_USER', message: 'Sign in aborted by user');
-    }
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    var cr= await FirebaseAuth.instance.signInWithCredential(credential);
+    return cr.user;
   }
 }
